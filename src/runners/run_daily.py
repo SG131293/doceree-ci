@@ -28,6 +28,7 @@ import asyncio
 import logging
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 from clients.gemini import GeminiClient
 from clients.gmail import GmailClient
@@ -35,6 +36,7 @@ from clients.http import HttpClient
 from pipeline.extract import extract_findings
 from pipeline.filter import filter_items, kept
 from render.render import render_plaintext, render_subject
+from schema.finding import Finding
 from schema.source import SourceType
 from sources.rss import fetch_rss
 
@@ -73,12 +75,37 @@ DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
 )
 
 
+def write_artifacts(
+    out_dir: Path,
+    *,
+    findings: list[Finding],
+    plaintext: str,
+    subject: str,
+) -> None:
+    """Write run artifacts to `out_dir` for upload by GitHub Actions.
+
+    Produces:
+      findings.jsonl   one Finding per line (JSON-serialized via pydantic).
+      digest.txt       the rendered plaintext body.
+      subject.txt      the rendered subject line.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    jsonl_lines = [f.model_dump_json() for f in findings]
+    (out_dir / "findings.jsonl").write_text(
+        "\n".join(jsonl_lines) + ("\n" if jsonl_lines else ""),
+        encoding="utf-8",
+    )
+    (out_dir / "digest.txt").write_text(plaintext, encoding="utf-8")
+    (out_dir / "subject.txt").write_text(subject, encoding="utf-8")
+
+
 async def run(
     *,
     feeds: tuple[CompetitorFeed, ...] = DAY6_FEEDS,
     max_items_per_feed: int = 10,
     dry_run: bool = False,
     send_to: str | None = None,
+    out_dir: Path | None = None,
 ) -> int:
     """Execute one daily run end to end. Returns process exit code."""
     logging.basicConfig(
@@ -117,6 +144,10 @@ async def run(
     plaintext = render_plaintext(findings)
     subject = render_subject(findings)
 
+    if out_dir is not None:
+        write_artifacts(out_dir, findings=findings, plaintext=plaintext, subject=subject)
+        logger.info("Wrote artifacts to %s", out_dir)
+
     if dry_run:
         print(f"\n=== Subject ===\n{subject}\n")
         print(f"=== Body ===\n{plaintext}")
@@ -153,6 +184,13 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default=10,
         help="Max RSS items per competitor feed (default 10).",
     )
+    p.add_argument(
+        "--out-dir",
+        type=Path,
+        default=None,
+        help="If set, write findings.jsonl + digest.txt + subject.txt to this "
+             "directory. Used by the GitHub Actions workflow for artifact upload.",
+    )
     return p
 
 
@@ -163,6 +201,7 @@ def main(argv: list[str] | None = None) -> int:
             max_items_per_feed=args.max_items,
             dry_run=args.dry_run,
             send_to=args.send_to,
+            out_dir=args.out_dir,
         )
     )
 
