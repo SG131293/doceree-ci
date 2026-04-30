@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Secrets & credentials — NEVER commit
+.env
+.env.*
+!.env.example
+credentials.json
+credentials.json.json
+client_secret*.json
+token.json
+*.token
+*_refresh_token*
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code local state
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Pipeline runtime artifacts
+archive/
+!archive/.gitkeep
+docs-pages/
+!docs-pages/.gitkeep
+
+# Logs
+*.log
+logs/

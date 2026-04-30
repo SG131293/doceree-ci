@@ -1,0 +1,32 @@
+# Doceree CI — runtime dependencies
+# Pinned to the minor version for reproducibility; bump deliberately.
+
+# --- LLM clients ---
+google-genai>=0.8,<2.0
+openai>=1.50,<2.0
+
+# --- HTTP / parsing ---
+httpx[http2]>=0.27,<1.0
+feedparser>=6.0,<7.0
+selectolax>=0.3.21
+
+# --- Schema / config ---
+pydantic>=2.7,<3.0
+ruamel.yaml>=0.18,<1.0
+
+# --- Email rendering / delivery ---
+jinja2>=3.1,<4.0
+premailer>=3.10,<4.0
+google-api-python-client>=2.140,<3.0
+google-auth>=2.30,<3.0
+google-auth-oauthlib>=1.2,<2.0
+
+# --- Alerts / archive ---
+python-telegram-bot>=21,<22
+tinydb>=4.8,<5.0
+
+# --- Reliability ---
+tenacity>=8.5,<10.0
+
+# --- Local env loading (dev + scripts) ---
+python-dotenv>=1.0,<2.0
