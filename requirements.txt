@@ -31,3 +31,6 @@ tenacity>=8.5,<10.0
 
 # --- Local env loading (dev + scripts) ---
 python-dotenv>=1.0,<2.0
+
+# --- Timezone DB (Windows lacks IANA zoneinfo; Linux uses system tzdata) ---
+tzdata>=2024.1; sys_platform == "win32"

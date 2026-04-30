@@ -199,9 +199,34 @@ class TestGenerate:
         )
         cfg = fake_client.aio.models.generate_content.call_args.kwargs["config"]
         assert cfg.response_mime_type == "application/json"
-        assert cfg.response_schema is Out
+        # The class is converted to a sanitized dict before being passed to
+        # the Gemini SDK (Gemini rejects pydantic's `additionalProperties`).
+        assert isinstance(cfg.response_schema, dict)
+        assert cfg.response_schema.get("type") == "object"
+        assert "additionalProperties" not in cfg.response_schema
+        # Response is parsed back into the original class.
         assert isinstance(result, Out)
         assert result.ok is True
+
+    async def test_response_schema_strips_additional_properties(
+        self, fake_client: Any
+    ) -> None:
+        """Pydantic models with ConfigDict(extra='forbid') must not leak
+        `additionalProperties: false` into the schema sent to Gemini."""
+        from pydantic import ConfigDict
+
+        class Strict(BaseModel):
+            model_config = ConfigDict(extra="forbid")
+            ok: bool
+
+        fake_client.aio.models.generate_content.return_value = _FakeResponse(
+            text='{"ok": true}'
+        )
+        client = GeminiClient(api_key="x")
+        await client.generate(call_type="filter", prompt="x", response_schema=Strict)
+        cfg = fake_client.aio.models.generate_content.call_args.kwargs["config"]
+        assert "additionalProperties" not in cfg.response_schema
+        assert "$schema" not in cfg.response_schema
 
     async def test_no_schema_returns_raw_text(self, fake_client: Any) -> None:
         fake_client.aio.models.generate_content.return_value = _FakeResponse(

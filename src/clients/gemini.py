@@ -47,11 +47,14 @@ from util.token_bucket import TokenBucket
 logger = logging.getLogger(__name__)
 
 
-# ---- Pinned model identifiers (Section: error_handling_matrix in plan) ----
-# "Pin model versions explicitly (gemini-2.5-pro-001 not -latest)."
-MODEL_FLASH_LITE = "gemini-2.5-flash-lite-001"
-MODEL_FLASH = "gemini-2.5-flash-001"
-MODEL_PRO = "gemini-2.5-pro-001"
+# ---- Pinned model identifiers ----
+# The build plan's `-001` suffix convention was the Gemini 2.0 stable scheme;
+# Gemini 2.5 went stable without a numeric sub-version (the bare name IS
+# the pinned stable). We avoid `-latest` aliases so an upstream model bump
+# doesn't silently change behavior between runs.
+MODEL_FLASH_LITE = "gemini-2.5-flash-lite"
+MODEL_FLASH = "gemini-2.5-flash"
+MODEL_PRO = "gemini-2.5-pro"
 
 
 @dataclass(frozen=True)
@@ -130,6 +133,31 @@ CALL_TYPES: dict[str, CallType] = {
         max_output_tokens=8192,
     ),
 }
+
+
+def _sanitize_schema_for_gemini(schema: object) -> object:
+    """Strip JSON-schema fields that Gemini's `response_schema` rejects.
+
+    Gemini accepts a strict subset of JSON Schema. The fields below are emitted
+    by Pydantic 2 but are not recognized by Gemini and cause a 400 INVALID_ARGUMENT:
+      - `additionalProperties`  Pydantic emits this for `ConfigDict(extra="forbid")`.
+      - `$schema`               Pydantic adds this at the top level.
+      - `$defs`                 Definitions block for nested models (we inline
+                                via `mode="serialization"` instead, but if any
+                                slip through, drop them).
+
+    Mutates `schema` in place AND returns it for convenience.
+    """
+    if isinstance(schema, dict):
+        schema.pop("additionalProperties", None)
+        schema.pop("$schema", None)
+        schema.pop("$defs", None)
+        for v in schema.values():
+            _sanitize_schema_for_gemini(v)
+    elif isinstance(schema, list):
+        for v in schema:
+            _sanitize_schema_for_gemini(v)
+    return schema
 
 
 def is_retryable(exc: BaseException) -> bool:
@@ -266,7 +294,11 @@ class GeminiClient:
             )
         if response_schema is not None:
             config_kwargs["response_mime_type"] = "application/json"
-            config_kwargs["response_schema"] = response_schema
+            # Convert to dict + sanitize. Gemini's `response_schema` rejects
+            # several JSON Schema fields Pydantic emits by default.
+            schema_dict = response_schema.model_json_schema()
+            _sanitize_schema_for_gemini(schema_dict)
+            config_kwargs["response_schema"] = schema_dict
         if cached_content is not None:
             config_kwargs["cached_content"] = cached_content
 
