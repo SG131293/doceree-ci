@@ -1,0 +1,542 @@
+# Doceree Source Registry - Day-1 50-source MVP cohort
+# Source of truth: docs/reference/master_prd.md, Section 11 (Prioritized MVP
+# Monitoring List), Section 7 (Source Type Taxonomy), Section 9 (Collection
+# Method Policy).
+#
+# Cohort rule (per SCOPE_LOCK.md): only the 50-source MVP cohort is scheduled
+# by default. Post-MVP sources stay inactive unless promoted by Sherry.
+#
+# Frequency mapping (per master PRD Section 8):
+#   daily   - Tier-1 priority-1 sources (homepages, press, IR feeds)
+#   weekly  - Tier-1 priority-2 sources (blogs, careers, case studies)
+#   monthly - Tier-3 entries (none in this v1 cohort)
+#
+# collection_method options (per Section 9):
+#   rss          - feedparser-friendly RSS
+#   sitemap      - sitemap.xml diff (delta urls fetched + extracted)
+#   crawler      - direct HTTP fetch + selectolax parse
+#   ats_api      - public ATS JSON (Greenhouse/Lever/Ashby) - none in v1 cohort yet
+#   sec_edgar    - SEC EDGAR full-text search API - added in Day 16
+#
+# Note on RSS: most healthcare-vendor sites do NOT publish RSS for press releases.
+# Where RSS is unconfirmed, we fall back to sitemap diff. Day 6 implements RSS
+# only; sitemap support lands Day 17.
+
+version: 1
+cohort: "MVP-Day-1"
+
+sources:
+  # ===== OptimizeRx (4) =====
+  - rank: 1
+    competitor: optimizerx
+    url: https://www.optimizerx.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Most-named POC competitor; positioning anchor."
+
+  - rank: 2
+    competitor: optimizerx
+    url: https://investors.optimizerx.com/news-releases
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Public-co press feed."
+
+  - rank: 3
+    competitor: optimizerx
+    url: https://www.optimizerx.com/blog
+    source_type: blog
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "Thought leadership."
+
+  - rank: 4
+    competitor: optimizerx
+    url: https://www.optimizerx.com/careers
+    source_type: careers
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Leading indicator (capability investment)."
+
+  # ===== DeepIntent (4) =====
+  - rank: 5
+    competitor: deepintent
+    url: https://deepintent.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Premium Programmatic / NEXT anchor."
+
+  - rank: 6
+    competitor: deepintent
+    url: https://deepintent.com/news
+    source_type: newsroom
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Recent product launches and funding."
+
+  - rank: 7
+    competitor: deepintent
+    url: https://www.deepintent.com/about/news/
+    source_type: newsroom
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Aggregated press archive."
+
+  - rank: 8
+    competitor: deepintent
+    url: https://start.deepintent.com/news/
+    source_type: newsroom
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "Product-launch sub-domain."
+
+  # ===== PulsePoint (3) =====
+  - rank: 9
+    competitor: pulsepoint
+    url: https://www.pulsepoint.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Premium Programmatic anchor."
+
+  - rank: 10
+    competitor: pulsepoint
+    url: https://www.pulsepoint.com/press-releases
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Authenticated NPI / Medscape developments."
+
+  - rank: 11
+    competitor: pulsepoint
+    url: https://www.pulsepoint.com/blog
+    source_type: blog
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "Strategy + product perspective."
+
+  # ===== IQVIA (3) =====
+  - rank: 12
+    competitor: iqvia
+    url: https://www.iqvia.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Anchor data competitor."
+
+  - rank: 13
+    competitor: iqvia
+    url: https://www.iqvia.com/newsroom
+    source_type: newsroom
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "AWS-AI collaboration; AI Assistant; Lasso updates."
+
+  - rank: 14
+    competitor: iqvia
+    url: https://jobs.iqvia.com/
+    source_type: careers
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Hiring signals (capability investment)."
+
+  # ===== Lasso (an IQVIA business) (2) =====
+  - rank: 15
+    competitor: lasso
+    url: https://www.iqviadigital.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "NEXT anchor."
+
+  - rank: 16
+    competitor: lasso
+    url: https://www.iqviadigital.com/
+    source_type: product_page
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Post-acquisition Lasso product content (same domain)."
+
+  # ===== Veradigm (4) =====
+  - rank: 17
+    competitor: veradigm
+    url: https://veradigm.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "POC anchor."
+
+  - rank: 18
+    competitor: veradigm
+    url: https://veradigm.com/about-veradigm/press-releases/
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Press feed."
+
+  - rank: 19
+    competitor: veradigm
+    url: https://veradigm.com/about-veradigm/in-the-news/
+    source_type: newsroom
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "Aggregated news."
+
+  - rank: 20
+    competitor: veradigm
+    url: https://veradigm.com/about-veradigm/careers/job-openings/
+    source_type: careers
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Hiring signals."
+
+  # ===== CoverMyMeds (3) =====
+  - rank: 21
+    competitor: covermymeds
+    url: https://www.covermymeds.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "co-pay.com anchor."
+
+  - rank: 22
+    competitor: covermymeds
+    url: https://insights.covermymeds.com/press
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Press feed."
+
+  - rank: 23
+    competitor: covermymeds
+    url: https://experience.covermymeds.com/open-positions
+    source_type: careers
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Hiring signals."
+
+  # ===== ConnectiveRx (3) =====
+  - rank: 24
+    competitor: connectiverx
+    url: https://www.connectiverx.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "POD/co-pay anchor."
+
+  - rank: 25
+    competitor: connectiverx
+    url: https://www.connectiverx.com/thought-leadership
+    source_type: blog
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Mixed press + blog."
+
+  - rank: 26
+    competitor: connectiverx
+    url: https://talent.connectiverx.com/jobs
+    source_type: careers
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Hiring signals."
+
+  # ===== Doximity (4) =====
+  - rank: 27
+    competitor: doximity
+    url: https://www.doximity.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Publisher AI Suite anchor."
+
+  - rank: 28
+    competitor: doximity
+    url: https://press.doximity.com/
+    source_type: newsroom
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Primary press surface."
+
+  - rank: 29
+    competitor: doximity
+    url: https://blog.doximity.com/
+    source_type: blog
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "DocsGPT and product perspective."
+
+  - rank: 30
+    competitor: doximity
+    url: https://investors.doximity.com/news/default.aspx
+    source_type: investor_relations
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Public-co filings."
+
+  # ===== OpenEvidence (3) =====
+  - rank: 31
+    competitor: openevidence
+    url: https://www.openevidence.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Publisher AI Suite the threat."
+
+  - rank: 32
+    competitor: openevidence
+    url: https://www.openevidence.com/announcements
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Funding, partnerships, milestones."
+
+  - rank: 33
+    competitor: openevidence
+    url: https://www.openevidence.com/about
+    source_type: solution_page
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Positioning shifts."
+
+  # ===== Komodo Health (3) =====
+  - rank: 34
+    competitor: komodo_health
+    url: https://www.komodohealth.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Marketplace anchor."
+
+  - rank: 35
+    competitor: komodo_health
+    url: https://www.komodohealth.com/press/
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Marmot AI; senior hires."
+
+  - rank: 36
+    competitor: komodo_health
+    url: https://www.komodohealth.com/careers/
+    source_type: careers
+    priority: 2
+    frequency: weekly
+    collection_method: crawler
+    why: "Hiring signals."
+
+  # ===== Definitive Healthcare (3) =====
+  - rank: 37
+    competitor: definitive_healthcare
+    url: https://www.definitivehc.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Marketplace competitor and ABM partner."
+
+  - rank: 38
+    competitor: definitive_healthcare
+    url: https://www.definitivehc.com/about/press
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Press feed."
+
+  - rank: 39
+    competitor: definitive_healthcare
+    url: https://www.definitivehc.com/blog
+    source_type: blog
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "Strategy + product perspective."
+
+  # ===== Trade Desk (2) =====
+  - rank: 40
+    competitor: trade_desk
+    url: https://www.thetradedesk.com/press-room
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Pharma marketplace updates."
+
+  - rank: 41
+    competitor: trade_desk
+    url: https://www.thetradedesk.com/pharma
+    source_type: solution_page
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Pharma vertical narrative."
+
+  # ===== StackAdapt (1) =====
+  - rank: 42
+    competitor: stackadapt
+    url: https://www.stackadapt.com/industry-solutions/healthcare
+    source_type: solution_page
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "Healthcare suite changes."
+
+  # ===== Hippocratic AI (2) =====
+  - rank: 43
+    competitor: hippocratic_ai
+    url: https://hippocraticai.com/
+    source_type: homepage
+    priority: 1
+    frequency: daily
+    collection_method: crawler
+    why: "RepTwin adjacency."
+
+  - rank: 44
+    competitor: hippocratic_ai
+    url: https://hippocraticai.com/press/
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Funding and partnerships cadence."
+
+  # ===== RedSail Technologies (2) =====
+  - rank: 45
+    competitor: redsail_technologies
+    url: https://www.redsailtechnologies.com/press-releases
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "POD vertical lock-in."
+
+  - rank: 46
+    competitor: redsail_technologies
+    url: https://www.redsailtechnologies.com/news
+    source_type: newsroom
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Strategy and product perspective."
+
+  # ===== PatientPoint (1) =====
+  - rank: 47
+    competitor: patientpoint
+    url: https://patientpoint.com/news/
+    source_type: newsroom
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Spark for DOOH anchor."
+
+  # ===== Vistar Media (1) =====
+  - rank: 48
+    competitor: vistar_media
+    url: https://www.vistarmedia.com/news
+    source_type: newsroom
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "DOOH benchmark."
+
+  # ===== GoodRx (1) =====
+  - rank: 49
+    competitor: goodrx
+    url: https://investors.goodrx.com/news-and-events/press-releases
+    source_type: press_release
+    priority: 1
+    frequency: daily
+    collection_method: sitemap
+    why: "Public-co IR; manufacturer access deals."
+
+  # ===== Demandbase (1) =====
+  - rank: 50
+    competitor: demandbase
+    url: https://www.demandbase.com/about-us/news/
+    source_type: newsroom
+    priority: 2
+    frequency: weekly
+    collection_method: sitemap
+    why: "Healthcare-module entry indicator."
+
+# ===== Source-type taxonomy reference =====
+# Keep this list in sync with master_prd.md Section 7 when adding new source types.
+source_types_allowed:
+  - homepage
+  - product_page
+  - solution_page
+  - pricing_page
+  - blog
+  - resource_center
+  - newsroom
+  - press_release
+  - case_study
+  - customer_story
+  - docs
+  - release_notes
+  - partner_page
+  - integration_page
+  - events_webinars
+  - careers
+  - investor_relations
+  - youtube       # via YouTube Data API only (Day 16)
+  - podcast       # via RSS only
+  - sec_filing    # via SEC EDGAR API only (Day 16)
+  - github_repo   # via GitHub API only (Day 16)
+  - reddit_thread # via Reddit JSON API only (Day 16)
+  - uspto_patent  # via USPTO PatentsView API only (Day 16)
+  - comparison_page  # SERP-triggered (Day 17+)
+
+# ===== Source types EXCLUDED from automation (per SCOPE_LOCK.md) =====
+source_types_excluded:
+  - linkedin_company_page
+  - linkedin_profile
+  - private_social
+  - paywalled_analyst_report
+  - gated_webinar
+  - paid_report
+  - login_required_portal
+  - captcha_gated
+  - private_group
+  - contact_database
+  - review_site_unapproved
+  - patent_database  # MVP exclusion only; USPTO PatentsView added later
+  - trademark_database
+  - ad_library

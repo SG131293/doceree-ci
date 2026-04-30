@@ -1,0 +1,507 @@
+# Doceree Product Spine - canonical seed
+# Source of truth: docs/reference/master_prd.md, Section 3 (Master Product Registry)
+# and Section 4 (Product-by-Product Deep Dive).
+#
+# Each product entry is the spine for downstream stages:
+#   - filter / extract: keywords + negative_keywords gate inclusion
+#   - signal-mapping: rules in signal-mapping.yaml reference these product IDs
+#   - synth_per_product: one section per product in the daily digest
+#   - render: product sections in the email use `name` + `one_line`
+#
+# Claims taxonomy (from SCOPE_LOCK.md):
+#   confirmed_claims          - safe to use as approved Doceree messaging
+#   inferred_claims           - must remain labeled as inferred
+#   needs_confirmation_claims - must NOT be used as approved positioning
+#
+# Note: master PRD lists 16 products (Section 3 registry). The build plan
+# rounds this to "13 products"; we honor the master PRD as source of truth.
+
+version: 1
+
+products:
+  # ===== Demand-side products (1-10) =====
+
+  - id: marketplace
+    name: Marketplace
+    one_line: "Custom-first HCP audience-construction platform built on verified clinical, behavioral, and EHR signals; activates in Doceree or any external DSP via LiveRamp."
+    journey_stages: [audience_matching]
+    confirmed_claims:
+      - "Custom-first HCP audience construction platform"
+      - "Live EHR intelligence in audience definition"
+      - "Build once, activate anywhere through LiveRamp"
+      - "Privacy-by-design with masked HCP IDs"
+      - "6M+ verified HCPs available for construction"
+      - "185+ EHR and health-system integrations underpinning live signal ingestion"
+      - "50+ HCP attributes available for audience construction"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific audience-construction SLA"
+      - "Specific Rx-lift outcomes attributable to Marketplace"
+      - "Pricing model and minimum commitments"
+      - "EU consent posture for activations via LiveRamp"
+    keywords:
+      - hcp audience
+      - hcp marketplace
+      - audience construction
+      - npi audience
+      - prescriber segment
+      - hcp identity
+      - real-time clinical data
+      - audience engineering
+      - liveramp
+      - claims data audience
+      - rwd audience
+    negative_keywords:
+      - retail marketplace
+      - amazon marketplace
+      - etsy
+      - app marketplace
+      - nft marketplace
+      - real-estate marketplace
+    competitors_primary: [iqvia, komodo_health, definitive_healthcare]
+    competitors_adjacent: [swoop, deepintent, pulsepoint, lasso]
+
+  - id: abm
+    name: ABM
+    one_line: "Healthcare-purpose-built ABM across hospitals, IDNs, academic centers, specialty pharmacies, and clinics, with IP, MeSH-keyword, geolocation, and B2B-intent layers."
+    journey_stages: [account_influence]
+    confirmed_claims:
+      - "Healthcare-native ABM rather than generic B2B ABM repurposed for healthcare"
+      - "Four targeting layers: IP-based, MeSH keyword (7M+ medical terms), geolocation, B2B search intent"
+      - "Account-level lift measurement against pre-campaign baseline"
+    inferred_claims:
+      - "Brand.com Pixel for first-party HCP activation (described as upcoming)"
+    needs_confirmation_claims:
+      - "Specific account-lift outcome ranges"
+      - "ABM pricing model"
+      - "Whether ABM has POC compliance certification (battlecard mentions POC compliance which appears to be a templating error)"
+      - "'Largest healthcare ABM' as an absolute claim"
+    keywords:
+      - account-based marketing
+      - healthcare abm
+      - hcp account targeting
+      - p&t committee
+      - idn marketing
+      - hospital marketing
+      - specialty pharmacy marketing
+      - mesh keyword targeting
+      - b2b intent healthcare
+      - institutional marketing
+    negative_keywords:
+      - generic b2b abm
+      - retail abm
+      - automotive abm
+    competitors_primary: [demandbase, sixsense, demandscience, madison_logic]
+    competitors_adjacent: [definitive_healthcare]
+
+  - id: premium_programmatic
+    name: Premium Programmatic
+    one_line: "AI-powered programmatic across 2,000+ specialist medical publishers using NPI identity and MeSH contextual classification; six ad formats with keyword-level reporting."
+    journey_stages: [awareness, consideration]
+    confirmed_claims:
+      - "2,000+ endemic medical publishers"
+      - "Six ad formats: Display, Content Distribution, RepTwin (virtual rep), Native, Video, Audio"
+      - "Patented MeSH Taxonomy of 7M+ medical keywords"
+      - "Verified HCPs across 45+ specialties in 25+ countries"
+      - "NPI + clinical context targeted together"
+      - "6M+ verified HCPs"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific publisher count freshness (network is described as 2,000+ but exact count varies)"
+      - "Country coverage exact list"
+    keywords:
+      - endemic media
+      - hcp programmatic
+      - mesh taxonomy
+      - hcp context targeting
+      - npi targeting
+      - medical publisher network
+      - clinical context advertising
+      - content distribution programmatic
+      - hcp display advertising
+      - hcp video advertising
+    negative_keywords:
+      - dtc programmatic
+      - retail programmatic
+      - gaming programmatic
+      - ctv programmatic
+    competitors_primary: [deepintent, pulsepoint, swoop, trade_desk, stackadapt]
+    competitors_adjacent: [iqvia, lasso]
+
+  - id: reptwin
+    name: RepTwin
+    one_line: "AI-powered virtual brand rep — multimodal across video, voice, and chat — engaging HCPs 24x7 in 40+ languages, fully MLR-trained on brand-supplied content."
+    journey_stages: [interaction]
+    confirmed_claims:
+      - "Multimodal across video, voice, and chat"
+      - "MLR-trained on brand-supplied content"
+      - "Available in 40+ languages, 24x7"
+      - "Closed-system architecture for compliance"
+    inferred_claims:
+      - "Cost-per-engagement comparable to a fraction of field-rep cost"
+    needs_confirmation_claims:
+      - "Exact field-rep cost-comparison ratio"
+      - "Specific MLR-approval cycle time"
+      - "RepTwin pricing model"
+      - "Production deployment count by brand or therapy area"
+    keywords:
+      - virtual rep
+      - ai rep
+      - brand rep
+      - virtual brand rep
+      - ai virtual rep
+      - ambient documentation
+      - clinical ai
+      - ai scribe
+      - pharma ai agent
+      - agentic ai healthcare
+      - mlr-approved ai
+      - hcp engagement ai
+    negative_keywords:
+      - rep management software
+      - sales rep crm
+      - patient-facing chatbot
+      - dtc chatbot
+    competitors_primary: [synthio_labs, hippocratic_ai, beam_ai]
+    competitors_adjacent: [glass_health, suki, abridge, nabla, ambience, deepscribe, curai, openevidence]
+
+  - id: poc
+    name: Point-of-Care (POC)
+    one_line: "Real-time clinical-trigger messaging delivered inside the EHR at the moment of prescribing, with 86-93% NPI match."
+    journey_stages: [clinical_decision]
+    confirmed_claims:
+      - "Patented multi-condition Triggers fire on live ICD-10/CPT/NDC and 5 coverage categories"
+      - "86-93% NPI match rate"
+      - "First-party trigger-based context inside EHR workflow"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific brand-level Rx-lift case studies"
+      - "EHR integration partner names beyond aggregate counts"
+      - "Coverage of non-US EHR markets"
+    keywords:
+      - point-of-care
+      - poc messaging
+      - in-ehr advertising
+      - clinical trigger
+      - icd-10 trigger
+      - ndc trigger
+      - cpt trigger
+      - prescriber moment
+      - eprescribe placement
+      - ehr ad
+      - clinical decision support advertising
+      - poc3 certified
+      - pocma
+    negative_keywords:
+      - point-of-sale
+      - retail poc
+      - patient-facing poc
+    competitors_primary: [optimizerx, veradigm, relevate_health]
+    competitors_adjacent: [deepintent, pulsepoint, patientpoint, checkedup]
+
+  - id: next
+    name: NEXT
+    one_line: "AI omnichannel orchestration powered by clinical intent signals; works alongside the brand's existing CRM/DSP via BYOP."
+    journey_stages: [orchestration]
+    confirmed_claims:
+      - "Real-time clinical-intent triggers driving channel orchestration"
+      - "BYOP open architecture - activation tags for Trade Desk, DV360, Salesforce, Veeva, Adobe, IQVIA OCE"
+      - "Dynamic audiences and dynamic content"
+    inferred_claims:
+      - "BYOP integrations cover all major DSPs and CRMs (specific list may evolve)"
+    needs_confirmation_claims:
+      - "Specific outcome metrics for orchestration vs walled-garden alternatives"
+      - "Pricing model"
+      - "Latency SLAs for trigger-to-channel activation"
+    keywords:
+      - omnichannel orchestration
+      - clinical intent signals
+      - omnichannel pharma
+      - hcp orchestration
+      - dynamic audience
+      - dynamic content
+      - byop omnichannel
+      - real-time orchestration pharma
+      - prescriber-readiness
+    negative_keywords:
+      - retail omnichannel
+      - cpg orchestration
+    competitors_primary: [lasso, deepintent, iqvia]
+    competitors_adjacent: [pulsepoint, optimizerx, relevate_health, swoop, trade_desk, stackadapt]
+
+  - id: cis
+    name: Clinical Intent Signals (CIS)
+    one_line: "Unified intelligence layer combining clinical, behavioral, and engagement signals into a per-NPI prescriber-readiness score; activates inside NEXT or Marketplace and can be syndicated externally."
+    journey_stages: [orchestration, measurement]
+    confirmed_claims:
+      - "Unifies three signal streams (clinical, behavioral, engagement) into one real-time score per NPI"
+      - "Does not require a platform migration"
+    inferred_claims:
+      - "External syndication is positioned as available but specific syndication partners may not be enumerated"
+    needs_confirmation_claims:
+      - "Specific score validation methodology"
+      - "External syndication pricing"
+      - "Lookback window options"
+    keywords:
+      - clinical intent
+      - prescriber-readiness score
+      - clinical signals
+      - hcp intent score
+      - behavioral signal pharma
+      - engagement signal pharma
+      - npi-level scoring
+    negative_keywords:
+      - intent data b2b
+      - buyer intent retail
+    competitors_primary: [iqvia, komodo_health]
+    competitors_adjacent: [definitive_healthcare, swoop]
+
+  - id: copay_com
+    name: co-pay.com (manufacturer)
+    one_line: "End-to-end therapy-access platform inside the EHR — RTBC, automated ePA, and AI-driven enrollment via copay twin."
+    journey_stages: [access, activation]
+    confirmed_claims:
+      - "Affordability and PA cleared inside the prescribing workflow"
+      - "Performance-based pricing model"
+      - "Automated ePA"
+      - "RTBC (Real-Time Benefit Check) integration"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific PA approval rates and timelines"
+      - "Cost comparison vs CoverMyMeds / ConnectiveRx"
+      - "Therapy-area coverage limits"
+    keywords:
+      - copay
+      - co-pay
+      - patient access
+      - prior authorization
+      - epa
+      - real-time benefit check
+      - rtbc
+      - copay coupon
+      - copay assistance
+      - therapy access
+      - pa workflow
+      - hub services
+    negative_keywords:
+      - employee copay
+      - insurance copay (in non-pharma contexts)
+    competitors_primary: [covermymeds, connectiverx, surescripts, assistrx]
+    competitors_adjacent: [goodrx, relayhealth_change]
+
+  - id: pod
+    name: Point-of-Dispense (POD)
+    one_line: "Native PMS integration that influences dispensing decisions and drives refills via Triggers, auto-applied co-pay, and SMS adherence loops."
+    journey_stages: [adherence, refills]
+    confirmed_claims:
+      - "Reads live NDC entries in milliseconds inside PMS"
+      - "Embeds non-intrusive native messages"
+      - "Auto-applies co-pay"
+      - "Drives SMS adherence loops with deterministic NPI-to-claim attribution"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific PMS partner names beyond aggregate counts"
+      - "Lift rate vs print-based legacy coupons"
+      - "Pricing model"
+    keywords:
+      - point-of-dispense
+      - pod pharmacy
+      - pms integration
+      - pioneerrx
+      - redsail
+      - pharmacy software pharma
+      - dispense trigger
+      - pharmacy refill
+      - script abandonment
+      - sms adherence
+    negative_keywords:
+      - podcast
+      - pod (kubernetes)
+      - cleaning pod
+    competitors_primary: [connectiverx, redsail_technologies, medadvisor, drfirst]
+    competitors_adjacent: [relayhealth_change, optimizerx]
+
+  - id: aqs
+    name: Audience Quality Score (AQS)
+    one_line: "Proprietary 0-100 score predicting HCP prescribing likelihood; dual methodology for current and potential prescribers; tiered budget guidance."
+    journey_stages: [audience_prioritization]
+    confirmed_claims:
+      - "Validated, vendor-agnostic, activation-ready scoring system"
+      - "Dual methodology for current and potential prescribers"
+      - "Tiered budget recommendations"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Score validation methodology vs IQVIA / Komodo"
+      - "Whether AQS is bundled with Marketplace or separately priced"
+      - "External-list scoring SLA"
+    keywords:
+      - audience quality score
+      - hcp prescribing likelihood
+      - hcp scoring
+      - audience scoring pharma
+      - prescriber score
+      - npi scoring
+    negative_keywords:
+      - lead score
+      - account score
+      - credit score
+    competitors_primary: [iqvia, komodo_health]
+    competitors_adjacent: [definitive_healthcare]
+
+  # ===== Supply-side products (11-16) =====
+
+  - id: admanager
+    name: Admanager
+    one_line: "Healthcare-exclusive ad-server / monetization platform for medical journals, news sites, education platforms, and associations, with one-script integration and ESPYIAN identity."
+    journey_stages: [supply]
+    confirmed_claims:
+      - "One-script integration with ESPYIAN identity"
+      - "Healthcare-specific demand from 115+ manufacturers"
+      - "HCP-level analytics for publishers"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific publisher counts using Admanager"
+      - "Pricing tiers vs Google Ad Manager"
+      - "Feature parity vs PubMatic / Smaato"
+    keywords:
+      - ad server
+      - publisher monetization
+      - ssp healthcare
+      - medical publisher ad ops
+      - hcp identity for publishers
+      - espyian
+      - prebid healthcare
+    negative_keywords:
+      - ad blocker
+      - ad fraud
+    competitors_primary: [google_ad_manager, pubmatic, adbutler, smaato]
+    competitors_adjacent: []
+
+  - id: publisher_ai_suite
+    name: Publisher AI Suite
+    one_line: "Three-pillar platform: site-specific LLM keeps HCPs on-domain, AI Ads create new inventory inside chat, Licensed Content Marketplace turns scraping into licensed revenue."
+    journey_stages: [supply]
+    confirmed_claims:
+      - "Site-specific LLM trained on publisher content"
+      - "AI Ads inside chat experiences"
+      - "Licensed Content Marketplace for AI-bot licensing"
+    inferred_claims:
+      - "OneHCP verified HCP authentication / SSO referenced for enablement"
+    needs_confirmation_claims:
+      - "Publisher ROI case studies"
+      - "Pricing model"
+      - "Specific AI assistant integrations enabled"
+    keywords:
+      - publisher ai
+      - ai-era publisher
+      - llm publisher
+      - content licensing ai
+      - ai ad inventory
+      - chat ad
+      - hcp destination ai
+      - content scraping protection
+      - licensed content marketplace
+    negative_keywords:
+      - ai writing tool
+      - ai chatbot consumer
+    competitors_primary: [doximity, medscape, openevidence]
+    competitors_adjacent: [uptodate, tollbit, dappier, copyright_clearance_center]
+
+  - id: spark_for_ehrs
+    name: Spark for EHRs
+    one_line: "EHR-vendor-side product that embeds clinical-messaging modules (co-pay, drug education, trial recruitment) into EHR workflows via SMART on FHIR."
+    journey_stages: [supply]
+    confirmed_claims:
+      - "Plug-in clinical modules"
+      - "SMART on FHIR integration"
+      - "Built-in pharma demand at zero R&D cost to the EHR vendor"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific EHR partner deployment counts"
+      - "Revenue-share economics for EHR vendors"
+    keywords:
+      - smart on fhir
+      - ehr integration
+      - epic integration
+      - cerner integration
+      - oracle health integration
+      - athena integration
+      - allscripts integration
+      - clinical messaging module
+      - ehr vendor monetization
+    negative_keywords: []
+    competitors_primary: [veradigm, optimizerx]
+    competitors_adjacent: [stackadapt, deepintent]
+
+  - id: spark_for_dooh
+    name: Spark for DOOH
+    one_line: "Software layer turning clinical-screen networks into precision patient-targeting inventory using EHR check-in data."
+    journey_stages: [supply]
+    confirmed_claims:
+      - "Real-time, deterministic patient targeting at check-in"
+      - "No hardware changes required"
+      - "Premium CPM positioning"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific screen-network partner names"
+      - "CPM benchmarks vs PatientPoint / CheckedUp"
+    keywords:
+      - dooh healthcare
+      - clinical screen network
+      - waiting room screens
+      - patient-targeting dooh
+      - in-office screens
+      - ehr check-in advertising
+    negative_keywords:
+      - billboard dooh
+      - retail dooh
+      - airport dooh
+    competitors_primary: [patientpoint, checkedup, vistar_media]
+    competitors_adjacent: [screenverse, place_exchange, deepintent]
+
+  - id: spark_for_pharmacy
+    name: Spark for Pharmacy
+    one_line: "PMS-vendor-side product embedding POD technology into pharmacy management systems with built-in pharma demand and zero-cost partner model."
+    journey_stages: [supply]
+    confirmed_claims:
+      - "Native PMS integration"
+      - "Triggers in pharmacy workflow"
+      - "115+ manufacturer demand"
+      - "Zero-cost partner model"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "PMS partner deployment counts"
+      - "Revenue-share economics"
+    keywords:
+      - pms integration
+      - pharmacy management system
+      - pioneerrx
+      - redsail
+      - pharmacy software vendor
+      - pharma pharmacy demand
+      - pharmacy workflow advertising
+    negative_keywords: []
+    competitors_primary: [redsail_technologies, connectiverx, relayhealth_change]
+    competitors_adjacent: [drfirst, optimizerx]
+
+  - id: copay_com_health_systems
+    name: co-pay.com for Health Systems
+    one_line: "Health-system-side framing of co-pay.com — manufacturer-funded affordability and AI enrollment inside the EHR at zero cost to the health system."
+    journey_stages: [supply]
+    confirmed_claims:
+      - "Workflow-native affordability"
+      - "AI-driven enrollment"
+      - "Zero cost to the health system"
+    inferred_claims: []
+    needs_confirmation_claims:
+      - "Specific health-system deployment counts"
+      - "Outcome metrics on PA admin burden reduction"
+    keywords:
+      - health system pharma
+      - idn pharma
+      - ehr affordability
+      - health system copay
+      - care team copay workflow
+    negative_keywords: []
+    competitors_primary: [covermymeds, optimizerx, veradigm, relevate_health]
+    competitors_adjacent: [assistrx, surescripts]

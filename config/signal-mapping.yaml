@@ -1,0 +1,234 @@
+# Doceree Signal-Mapping Rules - starter set
+# Source of truth: docs/reference/master_prd.md, Section 10 (Competitor Signal
+# Watchlist), with severity guidance from MVP_REQUIREMENTS.md and the build
+# plan's signal-mapping example.
+#
+# Each rule applies after extract (T3) and feeds product mapping (T4e) and
+# severity scoring (T4f). Rules are evaluated in order; first match wins for
+# product attribution, but multiple rules can stack severity floors (we take
+# the MAX floor across all matching rules).
+#
+# Match keys:
+#   source_type        - one of source-registry.yaml `source_types_allowed`
+#   competitor         - competitor id from competitors.yaml
+#   title_contains     - substring (case-insensitive) match against item title
+#   body_contains      - substring (case-insensitive) match against extracted body/excerpt
+#   form_type          - SEC form (8-K, S-1, 10-Q, 10-K, etc.) when source_type=sec_filing
+#   amount_usd         - numeric comparator dict {gte: N, lte: N}
+#
+# Outputs:
+#   map_to_products    - list of product ids OR `["*"]` for all products (used
+#                        for cross-cutting signals like Doceree-named).
+#   severity_floor     - 1-5; final severity is max(deterministic_floor, raw_severity).
+#   signal_type        - canonical signal label, used in render and pattern detect.
+#   tag                - optional list of free-text tags rendered as chips.
+#
+# Build plan target: 15-20 rules at v1; expand to 30+ by Week 3.
+
+version: 1
+
+rules:
+  # ----- Capability investment via jobs (RepTwin / clinical AI) -----
+  - id: rule_001
+    description: "Job posting for AI scribe / ambient documentation / clinical AI roles -> RepTwin signal."
+    if:
+      source_type: careers
+      title_contains: ["ai scribe", "ambient documentation", "clinical ai", "ai virtual rep", "agentic ai healthcare", "mlr-trained ai"]
+    map_to_products: [reptwin]
+    severity_floor: 3
+    signal_type: capability_investment_jobs
+    tag: [hiring_signal, reptwin]
+
+  # ----- POC / clinical decision messaging -----
+  - id: rule_002
+    description: "News mentioning point-of-care, in-EHR, or POCMA -> POC signal."
+    if:
+      source_type: [newsroom, press_release, blog]
+      body_contains: ["point-of-care", "in-ehr", "pocma", "ehr trigger", "clinical-trigger", "smart on fhir"]
+    map_to_products: [poc, spark_for_ehrs]
+    severity_floor: 3
+    signal_type: poc_capability
+    tag: [poc]
+
+  # ----- EHR partnership announcements (Epic, Cerner/Oracle Health, athenahealth, MEDITECH) -----
+  - id: rule_003
+    description: "Major EHR partnership -> POC + Spark for EHRs + Marketplace (live signal layer)."
+    if:
+      source_type: [press_release, newsroom, partner_page]
+      body_contains: ["epic systems", "cerner", "oracle health", "athenahealth", "meditech", "allscripts", "smart on fhir"]
+    map_to_products: [poc, spark_for_ehrs, marketplace, next]
+    severity_floor: 4
+    signal_type: ehr_partnership
+    tag: [partnership, ehr]
+
+  # ----- Major identity / data partnership (Veeva, Salesforce Health Cloud, IQVIA OCE, LiveRamp) -----
+  - id: rule_004
+    description: "Identity / CRM / DSP partnership -> NEXT, Marketplace, Premium Programmatic."
+    if:
+      source_type: [press_release, newsroom, partner_page]
+      body_contains: ["veeva", "salesforce health cloud", "iqvia oce", "liveramp", "trade desk", "dv360", "adobe healthcare"]
+    map_to_products: [next, marketplace, premium_programmatic]
+    severity_floor: 3
+    signal_type: identity_partnership
+    tag: [partnership, identity_layer]
+
+  # ----- co-pay / PA / RTBC signals from CoverMyMeds / ConnectiveRx -----
+  - id: rule_005
+    description: "Co-pay, PA, ePA, RTBC mentions from co-pay competitors -> co-pay.com."
+    if:
+      competitor: [covermymeds, connectiverx, surescripts, assistrx, goodrx, relayhealth_change]
+      source_type: [press_release, newsroom, blog, product_page]
+      body_contains: ["copay", "co-pay", "epa", "prior authorization", "rtbc", "real-time benefit", "patient access"]
+    map_to_products: [copay_com, copay_com_health_systems]
+    severity_floor: 4
+    signal_type: copay_capability
+    tag: [copay, access]
+
+  # ----- Pharmacy / PMS announcements (RedSail, ConnectiveRx, DrFirst) -----
+  - id: rule_006
+    description: "Pharmacy software (PMS) acquisitions / integrations -> POD + Spark for Pharmacy."
+    if:
+      competitor: [redsail_technologies, connectiverx, drfirst, medadvisor, relayhealth_change]
+      source_type: [press_release, newsroom, partner_page]
+      body_contains: ["pioneerrx", "redsail", "qs/1", "bestrx", "primecare", "pms integration", "pharmacy software", "ndc trigger"]
+    map_to_products: [pod, spark_for_pharmacy]
+    severity_floor: 3
+    signal_type: pharmacy_capability
+    tag: [pharmacy, pod]
+
+  # ----- DOOH / clinical-screen network announcements -----
+  - id: rule_007
+    description: "DOOH / clinical-screen network moves -> Spark for DOOH."
+    if:
+      competitor: [patientpoint, checkedup, vistar_media, deepintent]
+      source_type: [press_release, newsroom, partner_page, product_page]
+      body_contains: ["dooh", "place exchange", "screen network", "waiting room", "patient point", "checkedup", "ehr check-in", "clinical screen"]
+    map_to_products: [spark_for_dooh, poc]
+    severity_floor: 3
+    signal_type: dooh_capability
+    tag: [dooh]
+
+  # ----- Publisher AI Suite signals (Doximity, Medscape, OpenEvidence) -----
+  - id: rule_008
+    description: "Publisher / AI-era HCP destination moves -> Publisher AI Suite + Premium Programmatic."
+    if:
+      competitor: [doximity, medscape, openevidence, uptodate]
+      source_type: [press_release, newsroom, blog, product_page]
+      body_contains: ["docsgpt", "deepconsult", "ai assistant", "site-specific llm", "content licensing", "ai search", "tollbit", "dappier"]
+    map_to_products: [publisher_ai_suite, premium_programmatic]
+    severity_floor: 3
+    signal_type: publisher_ai_capability
+    tag: [publisher_ai]
+
+  # ----- Healthcare DSP / programmatic moves -----
+  - id: rule_009
+    description: "Healthcare DSP product launches / Cortex-class capabilities -> Premium Programmatic + NEXT."
+    if:
+      competitor: [deepintent, pulsepoint, swoop, trade_desk, stackadapt]
+      source_type: [press_release, newsroom, product_page]
+      body_contains: ["dsp", "programmatic", "cortex", "helix", "hcp365", "audience marketplace", "openpath", "marketmatch", "ai media buying"]
+    map_to_products: [premium_programmatic, next]
+    severity_floor: 3
+    signal_type: dsp_capability
+    tag: [programmatic, dsp]
+
+  # ----- HCP audience / data moves (IQVIA, Komodo, Definitive) -----
+  - id: rule_010
+    description: "HCP audience / data product launches -> Marketplace + AQS + CIS."
+    if:
+      competitor: [iqvia, komodo_health, definitive_healthcare, lasso, swoop]
+      source_type: [press_release, newsroom, product_page]
+      body_contains: ["onekey", "data marketplace", "healthcare map", "marmot", "view suite", "monocl", "audience builder", "blueprint", "aim xr", "live ehr"]
+    map_to_products: [marketplace, aqs, cis, next]
+    severity_floor: 3
+    signal_type: data_capability
+    tag: [audience_data]
+
+  # ----- B2B / ABM healthcare entry -----
+  - id: rule_011
+    description: "Generic B2B ABM platforms entering healthcare -> ABM (Sev 4 escalation)."
+    if:
+      competitor: [demandbase, sixsense, demandscience, madison_logic]
+      source_type: [press_release, newsroom, product_page, partner_page, careers]
+      body_contains: ["healthcare", "pharma", "life sciences", "hipaa", "hcp"]
+    map_to_products: [abm]
+    severity_floor: 4
+    signal_type: abm_healthcare_entry
+    tag: [abm, escalation]
+
+  # ----- Funding rounds (>=50M) -----
+  - id: rule_012
+    description: "Major funding round >= $50M signals competitive expansion capacity."
+    if:
+      source_type: [press_release, newsroom]
+      body_contains: ["series a", "series b", "series c", "series d", "raised", "led the round", "funding round", "strategic investment"]
+      amount_usd: { gte: 50000000 }
+    map_to_products: ["*"]
+    severity_floor: 4
+    signal_type: funding_round
+    tag: [funding]
+
+  # ----- M&A activity -----
+  - id: rule_013
+    description: "M&A signal -> all products (severity 4 floor)."
+    if:
+      source_type: [press_release, newsroom, sec_filing]
+      body_contains: ["acquisition", "acquires", "merger", "to acquire", "definitive agreement", "stock-for-stock"]
+    map_to_products: ["*"]
+    severity_floor: 4
+    signal_type: m_and_a
+    tag: [m_and_a]
+
+  # ----- SEC filings (8-K / S-1 / S-4) -----
+  - id: rule_014
+    description: "Material SEC filings -> all products (severity 4 floor)."
+    if:
+      source_type: sec_filing
+      form_type: ["8-K", "S-1", "S-4", "424B", "10-Q", "10-K"]
+    map_to_products: ["*"]
+    severity_floor: 4
+    signal_type: sec_filing
+    tag: [sec, regulatory]
+
+  # ----- Pricing changes -----
+  - id: rule_015
+    description: "Pricing-page changes or pricing announcements -> all products (severity 4 floor)."
+    if:
+      source_type: [pricing_page, press_release, product_page]
+      body_contains: ["pricing", "price reduction", "free tier", "pricing tiers", "removed setup fee", "performance-based pricing", "no minimums"]
+    map_to_products: ["*"]
+    severity_floor: 4
+    signal_type: pricing_change
+    tag: [pricing]
+
+  # ----- Leadership changes / layoffs -----
+  - id: rule_016
+    description: "C-suite leadership change or layoff signal -> all products (severity 3 floor)."
+    if:
+      source_type: [press_release, newsroom, sec_filing]
+      body_contains: ["chief executive officer", "chief revenue officer", "chief product officer", "chief technology officer", "stepping down", "appointed as", "layoff", "workforce reduction", "rif"]
+    map_to_products: ["*"]
+    severity_floor: 3
+    signal_type: leadership_or_layoff
+    tag: [people_signal]
+
+  # ----- Customer wins (named pharma brand) -----
+  - id: rule_017
+    description: "Named pharma customer win in case study or press release -> relevant products (severity 3 floor)."
+    if:
+      source_type: [case_study, customer_story, press_release, newsroom]
+      body_contains: ["selected", "chose", "partners with", "case study", "now using", "live with"]
+    map_to_products: ["*"]
+    severity_floor: 3
+    signal_type: customer_win
+    tag: [customer_win]
+
+  # ----- Doceree-named (highest priority) -----
+  - id: rule_018
+    description: "Any content naming Doceree -> Severity 5 escalation across all products."
+    if:
+      body_contains: ["vs doceree", "vs. doceree", "doceree alternative", "alternatives to doceree", "compare to doceree", "doceree competitor", "instead of doceree", "doceree.com"]
+    map_to_products: ["*"]
+    severity_floor: 5
+    signal_type: doceree_named
+    tag: [doceree_named, escalation]

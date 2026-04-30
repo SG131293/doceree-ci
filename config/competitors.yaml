@@ -1,0 +1,446 @@
+# Doceree Competitor Registry - canonical seed
+# Source of truth: docs/reference/master_prd.md, Section 3 (Master Competitor List),
+# Section 5 (Competitor Deep Dives), Section 10 (Signal Watchlist), Section 11
+# (Prioritized MVP Monitoring List), Section 12 (AI-ready JSON).
+#
+# Three groups in this file:
+#   tier_1               - direct head-to-head competitors (master PRD Section 3
+#                          Tier-1); monitored daily on Priority-1 sources.
+#   tier_2_mvp_cohort    - master PRD Tier-2 competitors that have entries in the
+#                          50-source Day-1 MVP cohort (per Section 11 priority
+#                          list). Monitored weekly on Priority-2; monthly on
+#                          Priority-3. Komodo Health is #10 in master PRD priority.
+#   healthcare_ai_cluster - per the build plan, the agentic-AI / AI-scribe cluster
+#                          relevant to RepTwin and (adjacently) Publisher AI Suite.
+#                          Synthio Labs and Hippocratic AI come from the master PRD;
+#                          the rest are seeded from public knowledge of the AI-scribe
+#                          category and flagged needs_validation: true.
+#
+# Tier-3 entries from the master PRD are intentionally excluded from v1; they can be
+# promoted later via PR. SCOPE_LOCK rule: only the 50-source MVP cohort is scheduled
+# by default.
+#
+# Field reference (per build plan Day 2 spec):
+#   id, name, canonical_domain, rss_feeds, sitemaps, sec_cik (if public),
+#   public_jobs_boards, related_doceree_products, rep_priority (1-5).
+
+version: 1
+
+# ===== Tier 1 - daily monitoring =====
+tier_1:
+  - id: optimizerx
+    name: OptimizeRx
+    canonical_domain: optimizerx.com
+    short_description: "Public POC competitor; 300+ EHR/ePrescribe partners; DAAP platform; Micro-Neighborhood Targeting."
+    rss_feeds: []
+    sitemaps:
+      - https://www.optimizerx.com/sitemap.xml
+    sec_cik: "0001448431"
+    public_jobs_boards: []  # own-domain careers page; no Greenhouse/Lever/Ashby slug confirmed
+    related_doceree_products: [poc, next, copay_com, pod, spark_for_ehrs]
+    rep_priority: 5
+    region: US-primary
+
+  - id: veradigm
+    name: Veradigm
+    canonical_domain: veradigm.com
+    short_description: "EHR ad media (formerly Allscripts); POCMA-certified; owns its own EHR ecosystem."
+    rss_feeds: []
+    sitemaps:
+      - https://veradigm.com/sitemap.xml
+    sec_cik: null  # private (post-Allscripts spin-off; SEC status varies)
+    public_jobs_boards: []
+    related_doceree_products: [poc, spark_for_ehrs, next, copay_com_health_systems]
+    rep_priority: 5
+    region: US-primary
+
+  - id: deepintent
+    name: DeepIntent
+    canonical_domain: deepintent.com
+    short_description: "Healthcare DSP; Cortex AI media buying; Helix HIPAA-ready cloud; $637M Vitruvian investment Sep 2025."
+    rss_feeds: []
+    sitemaps:
+      - https://deepintent.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [premium_programmatic, next, poc, spark_for_ehrs, spark_for_dooh]
+    rep_priority: 5
+    region: US-primary
+
+  - id: pulsepoint
+    name: PulsePoint
+    canonical_domain: pulsepoint.com
+    short_description: "Healthcare programmatic; HCP365 NPI measurement; Authenticated NPI with Medscape; Internet Brands/WebMD parent."
+    rss_feeds: []
+    sitemaps:
+      - https://www.pulsepoint.com/sitemap.xml
+    sec_cik: null  # subsidiary of Internet Brands (private)
+    public_jobs_boards: []
+    related_doceree_products: [premium_programmatic, next, poc]
+    rep_priority: 5
+    region: US-primary
+
+  - id: iqvia
+    name: IQVIA
+    canonical_domain: iqvia.com
+    short_description: "Global life-sciences data + analytics + tech. NPA, OneKey, Data Marketplace, AI Assistant; AWS strategic AI collaboration."
+    rss_feeds: []
+    sitemaps:
+      - https://www.iqvia.com/sitemap.xml
+    sec_cik: "0001478242"
+    public_jobs_boards:
+      - {provider: workday, slug: iqvia}  # iqvia.wd1.myworkdayjobs.com - confirm before activation
+    related_doceree_products: [marketplace, next, premium_programmatic, copay_com, aqs, cis]
+    rep_priority: 5
+    region: Global
+
+  - id: lasso
+    name: Lasso (an IQVIA business)
+    canonical_domain: iqviadigital.com
+    short_description: "Healthcare marketing OS; Blueprint self-service audience builder; AIM XR identity; IRI consumer-purchase data. Acquired by IQVIA Oct 2022."
+    rss_feeds: []
+    sitemaps:
+      - https://www.iqviadigital.com/sitemap.xml
+    sec_cik: "0001478242"  # IQVIA parent
+    public_jobs_boards: []  # parent (IQVIA) jobs board likely covers
+    related_doceree_products: [next, marketplace, premium_programmatic]
+    rep_priority: 5
+    region: US-primary
+
+  - id: covermymeds
+    name: CoverMyMeds (McKesson)
+    canonical_domain: covermymeds.com
+    short_description: "PA platform integrating with EHRs and pharmacies; serves manufacturers, providers, pharmacies."
+    rss_feeds: []
+    sitemaps:
+      - https://www.covermymeds.com/sitemap.xml
+    sec_cik: "0000927653"  # McKesson parent
+    public_jobs_boards: []
+    related_doceree_products: [copay_com, copay_com_health_systems, poc]
+    rep_priority: 5
+    region: US-primary
+
+  - id: connectiverx
+    name: ConnectiveRx
+    canonical_domain: connectiverx.com
+    short_description: "Co-pay assistance, hub services, branded co-pay coupons distributed via PoC, e-prescribing, and pharmacy channels. 1.2M+ providers via PoC network."
+    rss_feeds: []
+    sitemaps:
+      - https://www.connectiverx.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [copay_com, pod, spark_for_pharmacy, poc]
+    rep_priority: 5
+    region: US-primary
+
+  - id: doximity
+    name: Doximity
+    canonical_domain: doximity.com
+    short_description: "Largest US digital network of medical professionals (~80% of US physicians); DocsGPT AI; pharma marketing solutions."
+    rss_feeds: []
+    sitemaps:
+      - https://www.doximity.com/sitemap.xml
+    sec_cik: "0001489096"
+    public_jobs_boards: []
+    related_doceree_products: [publisher_ai_suite, premium_programmatic, next]
+    rep_priority: 5
+    region: US-primary
+
+  - id: medscape
+    name: Medscape (WebMD Health)
+    canonical_domain: medscape.com
+    short_description: "Online HCP destination; Medscape Extend; Authenticated NPI data partner to PulsePoint."
+    rss_feeds: []
+    sitemaps:
+      - https://www.medscape.com/sitemap.xml
+    sec_cik: null  # subsidiary of WebMD/Internet Brands (private since 2017)
+    public_jobs_boards: []
+    related_doceree_products: [publisher_ai_suite, premium_programmatic, next]
+    rep_priority: 4
+    region: US-primary
+
+  - id: openevidence
+    name: OpenEvidence
+    canonical_domain: openevidence.com
+    short_description: "AI clinical-decision-support platform; AMA, NEJM, Mayo Clinic, Wiley partnerships; $250M raise Jan 2026; DeepConsult agentic AI."
+    rss_feeds: []
+    sitemaps:
+      - https://www.openevidence.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []  # ATS provider not confirmed
+    related_doceree_products: [publisher_ai_suite, reptwin, next]
+    rep_priority: 5
+    region: US-primary
+
+# ===== Tier 2 - MVP cohort (active in 50-source registry) =====
+# These are master PRD Section 3 Tier-2 entries that have at least one source
+# in the 50-source Day-1 MVP cohort. Monitored on the Tier-2 cadence (weekly
+# Priority-1 / Priority-2; monthly Priority-3) per master PRD Section 8.
+tier_2_mvp_cohort:
+  - id: komodo_health
+    name: Komodo Health
+    canonical_domain: komodohealth.com
+    short_description: "Healthcare data; Real-World Data; Healthcare Map ~325M+ patients; Marmot AI; distributed via Snowflake Marketplace."
+    rss_feeds: []
+    sitemaps:
+      - https://www.komodohealth.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [marketplace, next, aqs, cis]
+    rep_priority: 4
+    region: US-primary
+    master_prd_priority: 10  # #10 in master PRD Section 11 top-10 priority list
+
+  - id: definitive_healthcare
+    name: Definitive Healthcare
+    canonical_domain: definitivehc.com
+    short_description: "Healthcare commercial intelligence; Monocl Expert; Carevoyance; Populi. Public company. Also a Doceree ABM partner — dual relationship."
+    rss_feeds: []
+    sitemaps:
+      - https://www.definitivehc.com/sitemap.xml
+    sec_cik: "0001861795"
+    public_jobs_boards: []
+    related_doceree_products: [marketplace, abm, aqs]
+    rep_priority: 4
+    region: US-primary
+    notes: "Dual relationship — Marketplace competitor and ABM partner."
+
+  - id: trade_desk
+    name: The Trade Desk
+    canonical_domain: thetradedesk.com
+    short_description: "Independent omnichannel DSP; OpenPath; HCP endemic pharma marketplace launched 2025."
+    rss_feeds: []
+    sitemaps:
+      - https://www.thetradedesk.com/sitemap.xml
+    sec_cik: "0001671933"
+    public_jobs_boards: []
+    related_doceree_products: [premium_programmatic, next]
+    rep_priority: 4
+    region: Global
+    notes: "Cross-vertical scale; pharma vertical entry direct competitor; integration partner via NEXT BYOP."
+
+  - id: stackadapt
+    name: StackAdapt
+    canonical_domain: stackadapt.com
+    short_description: "AI-powered programmatic across native, display, CTV, video, audio, in-game, DOOH, email. Healthcare suite — NPI Targeting, Script Lift, EHR Inventory."
+    rss_feeds: []
+    sitemaps:
+      - https://www.stackadapt.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [premium_programmatic, next, spark_for_ehrs]
+    rep_priority: 3
+    region: Global
+
+  - id: redsail_technologies
+    name: RedSail Technologies
+    canonical_domain: redsailtechnologies.com
+    short_description: "Pharmacy software (PMS) — owns PioneerRx, QS/1, BestRx, PrimeCare. ~12,000 independent pharmacies through PioneerRx."
+    rss_feeds: []
+    sitemaps:
+      - https://www.redsailtechnologies.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [pod, spark_for_pharmacy]
+    rep_priority: 4
+    region: US-primary
+
+  - id: patientpoint
+    name: PatientPoint
+    canonical_domain: patientpoint.com
+    short_description: "Owned point-of-care DOOH network; ~35,000 physician offices; PatientPoint Health Audiences (programmatic)."
+    rss_feeds: []
+    sitemaps:
+      - https://patientpoint.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [spark_for_dooh, poc]
+    rep_priority: 4
+    region: US-primary
+
+  - id: vistar_media
+    name: Vistar Media
+    canonical_domain: vistarmedia.com
+    short_description: "Cross-vertical programmatic DOOH platform — DSP, SSP, ad-server."
+    rss_feeds: []
+    sitemaps:
+      - https://www.vistarmedia.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [spark_for_dooh]
+    rep_priority: 2
+    region: Global
+
+  - id: goodrx
+    name: GoodRx
+    canonical_domain: goodrx.com
+    short_description: "Consumer prescription savings marketplace; recent expanded access deals with manufacturers (Wegovy HD; Lilly's Foundayo)."
+    rss_feeds: []
+    sitemaps:
+      - https://www.goodrx.com/sitemap.xml
+    sec_cik: "0001809519"
+    public_jobs_boards: []
+    related_doceree_products: [copay_com]
+    rep_priority: 3
+    region: US-primary
+    notes: "Consumer-side adjacent competitor — workflow-placement contrast."
+
+  - id: demandbase
+    name: Demandbase
+    canonical_domain: demandbase.com
+    short_description: "Generic B2B ABM platform — Demandbase One ABX. 150M+ contacts, 99M+ companies."
+    rss_feeds: []
+    sitemaps:
+      - https://www.demandbase.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [abm]
+    rep_priority: 3
+    region: Global cross-vertical
+    notes: "Generic ABM benchmark; entry into healthcare would escalate priority."
+
+# ===== Healthcare AI agents cluster (per build plan) =====
+# Synthio Labs and Hippocratic AI are explicit in the master PRD.
+# The other 7 are AI-scribe / clinical-AI players added per the build plan
+# spec; their domains are seeded from public-knowledge patterns and flagged
+# `needs_validation: true` until verified by Sherry.
+healthcare_ai_cluster:
+  - id: synthio_labs
+    name: Synthio Labs
+    canonical_domain: null  # per master PRD: "Needs source discovery"
+    short_description: "Pharma-specific AI; named in Doceree Onboarding Guide as a RepTwin competitor; limited public information."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 4
+    region: Needs validation
+    funding_status: "Per build plan: ~$5M seed Nov 2025, YC + Elevation + Peak XV"
+    threat_level: high
+    needs_validation: true
+
+  - id: hippocratic_ai
+    name: Hippocratic AI
+    canonical_domain: hippocraticai.com
+    short_description: "Safety-focused healthcare LLMs; Constellation Architecture; 1.8M+ patient calls; 50+ partners; $404M raised."
+    rss_feeds: []
+    sitemaps:
+      - https://hippocraticai.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 4
+    region: Global
+    threat_level: high
+
+  - id: glass_health
+    name: Glass Health
+    canonical_domain: glass.health
+    short_description: "AI-powered clinical decision-support and differential-diagnosis platform; HCP-facing."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin, publisher_ai_suite]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
+  - id: suki
+    name: Suki AI
+    canonical_domain: suki.ai
+    short_description: "AI voice assistant for clinical documentation; ambient scribe; partnerships with Epic, Athena, MEDITECH."
+    rss_feeds: []
+    sitemaps:
+      - https://www.suki.ai/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
+  - id: abridge
+    name: Abridge
+    canonical_domain: abridge.com
+    short_description: "Generative-AI ambient clinical documentation; Epic partnership; large enterprise deployments."
+    rss_feeds: []
+    sitemaps:
+      - https://www.abridge.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 4
+    region: US-primary
+    threat_level: high
+    needs_validation: true
+
+  - id: nabla
+    name: Nabla
+    canonical_domain: nabla.com
+    short_description: "AI ambient assistant for clinicians; multi-language; EHR integrations."
+    rss_feeds: []
+    sitemaps:
+      - https://www.nabla.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 3
+    region: Global (FR/US)
+    threat_level: medium
+    needs_validation: true
+
+  - id: ambience
+    name: Ambience Healthcare
+    canonical_domain: ambiencehealthcare.com
+    short_description: "AI ambient documentation and CDI/coding; large health-system deployments."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
+  - id: deepscribe
+    name: DeepScribe
+    canonical_domain: deepscribe.ai
+    short_description: "AI medical scribe; multi-specialty ambient clinical documentation."
+    rss_feeds: []
+    sitemaps:
+      - https://www.deepscribe.ai/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
+  - id: curai
+    name: Curai Health
+    canonical_domain: curaihealth.com
+    short_description: "AI-powered virtual care platform; clinical AI for primary care."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 2
+    region: US-primary
+    threat_level: low
+    needs_validation: true
+
+# ===== Notes for downstream consumers =====
+# - rep_priority 1-5: signal_severity floor for unrelated findings; 5 = drop to severity 5
+#   only if Doceree-named or other escalating signal applies; rep_priority itself
+#   is a *priority* hint, not severity.
+# - related_doceree_products: aligns with config/products.yaml IDs. Used by signal-mapping
+#   and product_mapper to constrain product attribution.
+# - needs_validation: true = URL pattern not independently verified in master PRD;
+#   confirm before promoting to active monitoring.
