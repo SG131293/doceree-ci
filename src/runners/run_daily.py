@@ -42,6 +42,7 @@ from clients.gmail import GmailClient
 from clients.http import HttpClient
 from pipeline.extract import extract_findings
 from pipeline.filter import filter_items, kept
+from pipeline.synth import synth_per_product_batch, synth_strategic
 from pipeline.verify import (
     attach_attribution_to_finding,
     attribution_check_items,
@@ -183,8 +184,15 @@ async def run(
             len(kept_findings), len(findings), n_rejected,
         )
 
-    # T7 RENDER (renderer rewrite in 8f; T5/T6 synth land before that)
-    plaintext = render_plaintext(kept_findings)
+        # T5 SYNTH PER PRODUCT (Sprint 8)
+        per_product = await synth_per_product_batch(kept_findings, gemini=gemini)
+        # T6 SYNTH STRATEGIC (Sprint 8)
+        strategic = await synth_strategic(kept_findings, per_product, gemini=gemini)
+
+    # T7 RENDER (Sprint 8 redesigned digest structure)
+    plaintext = render_plaintext(
+        kept_findings, per_product=per_product, strategic=strategic
+    )
     subject = render_subject(kept_findings)
 
     if out_dir is not None:
