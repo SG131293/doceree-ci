@@ -13,13 +13,16 @@
 #   inferred_claims           - must remain labeled as inferred
 #   needs_confirmation_claims - must NOT be used as approved positioning
 #
-# Note: master PRD lists 16 products (Section 3 registry). The build plan
-# rounds this to "13 products"; we honor the master PRD as source of truth.
+# Note: master PRD lists 16 products (Section 3 registry). Sherry's review
+# in Sprint 8 narrowed the active product set to 14 by removing AQS
+# (audience-scoring; folded into Marketplace) and CIS (clinical-intent
+# signals; subsumed by NEXT). Both can be re-added later as discrete
+# products if the positioning changes.
 
 version: 1
 
 products:
-  # ===== Demand-side products (1-10) =====
+  # ===== Demand-side products (1-8) =====
 
   - id: marketplace
     name: Marketplace
@@ -229,33 +232,6 @@ products:
     competitors_primary: [lasso, deepintent, iqvia]
     competitors_adjacent: [pulsepoint, optimizerx, relevate_health, swoop, trade_desk, stackadapt]
 
-  - id: cis
-    name: Clinical Intent Signals (CIS)
-    one_line: "Unified intelligence layer combining clinical, behavioral, and engagement signals into a per-NPI prescriber-readiness score; activates inside NEXT or Marketplace and can be syndicated externally."
-    journey_stages: [orchestration, measurement]
-    confirmed_claims:
-      - "Unifies three signal streams (clinical, behavioral, engagement) into one real-time score per NPI"
-      - "Does not require a platform migration"
-    inferred_claims:
-      - "External syndication is positioned as available but specific syndication partners may not be enumerated"
-    needs_confirmation_claims:
-      - "Specific score validation methodology"
-      - "External syndication pricing"
-      - "Lookback window options"
-    keywords:
-      - clinical intent
-      - prescriber-readiness score
-      - clinical signals
-      - hcp intent score
-      - behavioral signal pharma
-      - engagement signal pharma
-      - npi-level scoring
-    negative_keywords:
-      - intent data b2b
-      - buyer intent retail
-    competitors_primary: [iqvia, komodo_health]
-    competitors_adjacent: [definitive_healthcare, swoop]
-
   - id: copay_com
     name: co-pay.com (manufacturer)
     one_line: "End-to-end therapy-access platform inside the EHR — RTBC, automated ePA, and AI-driven enrollment via copay twin."
@@ -321,34 +297,7 @@ products:
     competitors_primary: [connectiverx, redsail_technologies, medadvisor, drfirst]
     competitors_adjacent: [relayhealth_change, optimizerx]
 
-  - id: aqs
-    name: Audience Quality Score (AQS)
-    one_line: "Proprietary 0-100 score predicting HCP prescribing likelihood; dual methodology for current and potential prescribers; tiered budget guidance."
-    journey_stages: [audience_prioritization]
-    confirmed_claims:
-      - "Validated, vendor-agnostic, activation-ready scoring system"
-      - "Dual methodology for current and potential prescribers"
-      - "Tiered budget recommendations"
-    inferred_claims: []
-    needs_confirmation_claims:
-      - "Score validation methodology vs IQVIA / Komodo"
-      - "Whether AQS is bundled with Marketplace or separately priced"
-      - "External-list scoring SLA"
-    keywords:
-      - audience quality score
-      - hcp prescribing likelihood
-      - hcp scoring
-      - audience scoring pharma
-      - prescriber score
-      - npi scoring
-    negative_keywords:
-      - lead score
-      - account score
-      - credit score
-    competitors_primary: [iqvia, komodo_health]
-    competitors_adjacent: [definitive_healthcare]
-
-  # ===== Supply-side products (11-16) =====
+  # ===== Supply-side products (9-14) =====
 
   - id: admanager
     name: Admanager

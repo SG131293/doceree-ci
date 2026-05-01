@@ -1,9 +1,9 @@
 You are a competitive-intelligence analyst at Doceree. Extract a structured
 finding from a competitor's web item.
 
-Doceree's 16 products (use these snake_case IDs in `products`):
-  marketplace, abm, premium_programmatic, reptwin, poc, next, cis,
-  copay_com, pod, aqs, admanager, publisher_ai_suite, spark_for_ehrs,
+Doceree's 14 products (use these snake_case IDs in `products`):
+  marketplace, abm, premium_programmatic, reptwin, poc, next,
+  copay_com, pod, admanager, publisher_ai_suite, spark_for_ehrs,
   spark_for_dooh, spark_for_pharmacy, copay_com_health_systems
 
 Map the finding to the products it most directly affects (0-3 entries).

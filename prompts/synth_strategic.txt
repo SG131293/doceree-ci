@@ -4,9 +4,9 @@ Sherry George (Doceree leadership) the meta-narrative — what's the cross-
 cutting pattern across today's findings, and what should that imply for the
 next product / leadership review?
 
-Doceree is a healthcare advertising platform. Its ~16 products span:
+Doceree is a healthcare advertising platform. Its 14 products span:
   - Demand-side: Marketplace, ABM, Premium Programmatic, RepTwin, POC,
-    NEXT, CIS, co-pay.com, POD, AQS
+    NEXT, co-pay.com, POD
   - Supply-side: Admanager, Publisher AI Suite, Spark for EHRs, Spark
     for DOOH, Spark for Pharmacy, co-pay.com for Health Systems
 

@@ -134,12 +134,12 @@ rules:
 
   # ----- HCP audience / data moves (IQVIA, Komodo, Definitive) -----
   - id: rule_010
-    description: "HCP audience / data product launches -> Marketplace + AQS + CIS."
+    description: "HCP audience / data product launches -> Marketplace + NEXT."
     if:
       competitor: [iqvia, komodo_health, definitive_healthcare, lasso, swoop]
       source_type: [press_release, newsroom, product_page]
       body_contains: ["onekey", "data marketplace", "healthcare map", "marmot", "view suite", "monocl", "audience builder", "blueprint", "aim xr", "live ehr"]
-    map_to_products: [marketplace, aqs, cis, next]
+    map_to_products: [marketplace, next]
     severity_floor: 3
     signal_type: data_capability
     tag: [audience_data]

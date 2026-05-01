@@ -75,12 +75,12 @@ class TestGroupFindingsByProduct:
         assert out["reptwin"] == [f]
 
     def test_finding_appears_under_each_impacted_product(self) -> None:
-        f = _finding(products=["reptwin", "spark_for_ehrs", "aqs"])
+        f = _finding(products=["reptwin", "spark_for_ehrs", "premium_programmatic"])
         out = group_findings_by_product([f])
-        assert set(out.keys()) == {"reptwin", "spark_for_ehrs", "aqs"}
+        assert set(out.keys()) == {"reptwin", "spark_for_ehrs", "premium_programmatic"}
         assert out["reptwin"] == [f]
         assert out["spark_for_ehrs"] == [f]
-        assert out["aqs"] == [f]
+        assert out["premium_programmatic"] == [f]
 
     def test_empty_products_excluded(self) -> None:
         f1 = _finding(products=[])
@@ -100,11 +100,11 @@ class TestGroupFindingsByProduct:
         assert titles == ["high", "mid", "low"]
 
     def test_products_sorted_by_max_severity_desc(self) -> None:
-        # reptwin gets sev-5; aqs gets sev-2 → reptwin comes first.
+        # reptwin gets sev-5; pod gets sev-2 -> reptwin comes first.
         f_high = _finding(title="A", products=["reptwin"], raw_severity=5)
-        f_low = _finding(title="B", products=["aqs"], raw_severity=2)
+        f_low = _finding(title="B", products=["pod"], raw_severity=2)
         out = group_findings_by_product([f_low, f_high])
-        assert list(out.keys()) == ["reptwin", "aqs"]
+        assert list(out.keys()) == ["reptwin", "pod"]
 
 
 # =========================================================================
@@ -163,7 +163,7 @@ class TestSynthPerProduct:
         # If the LLM echoes the wrong id, we overwrite it with the request id
         # so downstream lookups stay consistent.
         mock_gemini.synthesize.return_value = PerProductSynthesis(  # type: ignore[attr-defined]
-            product_id="aqs",  # wrong
+            product_id="pod",  # wrong
             impact_summary="x" * 50,
             recommended_action="y",
         )
@@ -203,15 +203,15 @@ class TestSynthPerProductBatch:
                 product_id="reptwin", impact_summary="x" * 30, recommended_action="a"
             ),
             PerProductSynthesis(
-                product_id="aqs", impact_summary="y" * 30, recommended_action="b"
+                product_id="pod", impact_summary="y" * 30, recommended_action="b"
             ),
         ]
         findings = [
             _finding(products=["reptwin"], raw_severity=5),
-            _finding(products=["aqs"], raw_severity=3),
+            _finding(products=["pod"], raw_severity=3),
         ]
         out = await synth_per_product_batch(findings, gemini=mock_gemini)
-        assert set(out.keys()) == {"reptwin", "aqs"}
+        assert set(out.keys()) == {"reptwin", "pod"}
 
     async def test_skips_failed_synth(self, mock_gemini: GeminiClient) -> None:
         mock_gemini.synthesize.side_effect = [  # type: ignore[attr-defined]
@@ -222,7 +222,7 @@ class TestSynthPerProductBatch:
         ]
         findings = [
             _finding(products=["reptwin"], raw_severity=5),
-            _finding(products=["aqs"], raw_severity=3),
+            _finding(products=["pod"], raw_severity=3),
         ]
         out = await synth_per_product_batch(findings, gemini=mock_gemini)
         # Only the successful one is in the output.

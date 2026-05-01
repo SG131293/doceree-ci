@@ -102,7 +102,7 @@ class TestProductRef:
             ProductRef(id="reptwin", name="RepTwin", color="teal")  # type: ignore[call-arg]
 
     def test_journey_stages_default_empty(self) -> None:
-        p = ProductRef(id="aqs", name="AQS")
+        p = ProductRef(id="pod", name="POD")
         assert p.journey_stages == []
 
 

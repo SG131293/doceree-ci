@@ -108,7 +108,7 @@ tier_1:
     sec_cik: "0001478242"
     public_jobs_boards:
       - {provider: workday, slug: iqvia}  # iqvia.wd1.myworkdayjobs.com - confirm before activation
-    related_doceree_products: [marketplace, next, premium_programmatic, copay_com, aqs, cis]
+    related_doceree_products: [marketplace, next, premium_programmatic, copay_com]
     rep_priority: 5
     region: Global
 
@@ -211,7 +211,7 @@ tier_2_mvp_cohort:
       - https://www.komodohealth.com/sitemap.xml
     sec_cik: null  # private
     public_jobs_boards: []
-    related_doceree_products: [marketplace, next, aqs, cis]
+    related_doceree_products: [marketplace, next]
     rep_priority: 4
     region: US-primary
     master_prd_priority: 10  # #10 in master PRD Section 11 top-10 priority list
@@ -226,7 +226,7 @@ tier_2_mvp_cohort:
       - https://www.definitivehc.com/sitemap.xml
     sec_cik: "0001861795"
     public_jobs_boards: []
-    related_doceree_products: [marketplace, abm, aqs]
+    related_doceree_products: [marketplace, abm]
     rep_priority: 4
     region: US-primary
     notes: "Dual relationship — Marketplace competitor and ABM partner."

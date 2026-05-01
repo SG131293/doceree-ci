@@ -28,7 +28,7 @@ class TestGetProduct:
 class TestGetName:
     def test_known(self) -> None:
         assert product_registry.get_name("reptwin") == "RepTwin"
-        assert product_registry.get_name("aqs") == "Audience Quality Score (AQS)"
+        assert product_registry.get_name("pod") == "Point-of-Dispense (POD)"
 
     def test_unknown(self) -> None:
         assert product_registry.get_name("not_a_product") is None
@@ -57,5 +57,9 @@ class TestAllProductIds:
         ids = product_registry.all_product_ids()
         assert "reptwin" in ids
         assert "marketplace" in ids
-        # 16 products per the master PRD.
-        assert len(ids) == 16
+        # Sprint 8: 14 active products (16 master PRD entries minus AQS and CIS,
+        # which Sherry pulled from the active set).
+        assert len(ids) == 14
+        # The two removed products MUST NOT come back without an explicit decision.
+        assert "aqs" not in ids
+        assert "cis" not in ids
