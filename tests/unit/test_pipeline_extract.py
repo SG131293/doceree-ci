@@ -69,6 +69,47 @@ class TestExtractFinding:
         assert finding.captured_at.tzinfo is not None
         assert finding.published_at == item.published_at
 
+    async def test_category_populated_from_registry(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """extract.py should look up the competitor's category from
+        competitors.yaml and stamp it on the Finding."""
+        mock_gemini.extract.return_value = _draft()  # type: ignore[attr-defined]
+        finding = await extract_finding(_item(), gemini=mock_gemini)
+        assert finding is not None
+        # `deepintent` is in the healthcare_dsp category per Sprint 8 config.
+        assert finding.category == "healthcare_dsp"
+
+    async def test_extraction_confidence_mirrors_raw_confidence(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """Extract sets `extraction_confidence` from `raw_confidence` so the
+        decomposed-confidence path is uniformly populated."""
+        mock_gemini.extract.return_value = _draft(raw_confidence=4)  # type: ignore[attr-defined]
+        finding = await extract_finding(_item(), gemini=mock_gemini)
+        assert finding is not None
+        assert finding.extraction_confidence == 4
+
+    async def test_canonical_url_forwarded_from_raw_item(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        mock_gemini.extract.return_value = _draft()  # type: ignore[attr-defined]
+        item = RawItem(
+            url="https://news.google.com/rss/articles/CBMiabc",
+            canonical_url="https://deepintent.com/news/cortex",
+            publisher_domain="deepintent.com",
+            title="DeepIntent launches Cortex",
+            summary="...",
+            competitor="deepintent",
+            source_type=SourceType.PRESS_RELEASE,
+            collection_method=CollectionMethod.RSS,
+            published_at=datetime.now(timezone.utc),
+        )
+        finding = await extract_finding(item, gemini=mock_gemini)
+        assert finding is not None
+        assert str(finding.canonical_url) == "https://deepintent.com/news/cortex"
+        assert finding.publisher_domain == "deepintent.com"
+
     async def test_finding_id_is_deterministic_hash_of_item(
         self, mock_gemini: GeminiClient
     ) -> None:

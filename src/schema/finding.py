@@ -19,7 +19,19 @@ Master PRD validation rules (Section 12.1) require: competitor, signal_type,
 title, summary, evidence (here: url + evidence_quote), severity, confidence,
 status, products mapping (or empty list = unmapped).
 
-Build-plan reference: docs/2026-04-30-lean-ci-build-plan.md, Day 3.
+Sprint 8 additions (Day 8):
+- `category` lifts the competitor's market category onto the Finding for
+  digest grouping (Agentic Clinical AI, HCP Marketing Platform, etc.).
+- `canonical_url` and `publisher_domain` carry the resolved publisher URL
+  when the source URL is a Google News redirect or similar wrapper.
+- `attribution_confidence`, `extraction_confidence`, `severity_confidence`
+  decompose the legacy single `raw_confidence` into three independent signals
+  so the email can show the weakest link rather than averaging it away.
+- `attribution_verdict` / `attribution_reason` come from stage 4a (Flash
+  attribution check). `severity_verdict` / `severity_after_adversarial` /
+  `adversarial_reason` come from stage 4b (Pro severity check).
+
+Build-plan reference: docs/2026-04-30-lean-ci-build-plan.md, Day 3 + Day 8.
 """
 from __future__ import annotations
 
@@ -42,10 +54,19 @@ class FindingStatus(StrEnum):
     REJECTED_URL = "rejected_url"  # T4a non-200 (logged to hallucinated_urls.jsonl)
     REJECTED_DEDUPE = "rejected_dedupe"  # T4d already in last 30d archive
     REJECTED_INVALID = "rejected_invalid"  # malformed JSON / schema violation
+    REJECTED_ATTRIBUTION = "rejected_attribution"  # T4a (Sprint 8): wrong subject
+    REJECTED_ADVERSARIAL = "rejected_adversarial"  # T4b (Sprint 8): Pro rejected
 
 
 # Reusable score type: 1-5 inclusive. Used for both severity and confidence.
 ScoreLevel = Annotated[int, Field(ge=1, le=5)]
+
+
+# Adversarial verdict literals. Free-form str on the model (not enum-constrained)
+# because Sprint 8 may evolve the verdict vocabulary; documenting the canonical
+# values here keeps callers honest.
+ATTRIBUTION_VERDICTS = ("yes", "no", "unclear")
+SEVERITY_VERDICTS = ("kept", "demoted", "rejected")
 
 
 class Finding(BaseModel):
@@ -79,6 +100,18 @@ class Finding(BaseModel):
 
     # --- Source attribution ---
     url: HttpUrl
+    canonical_url: HttpUrl | None = Field(
+        default=None,
+        description="Resolved publisher URL when `url` is a Google News redirect "
+                    "or similar wrapper. None if `url` is already canonical.",
+    )
+    publisher_domain: str | None = Field(
+        default=None,
+        max_length=255,
+        description="eTLD+1 of canonical_url (or url if no redirect). Drives "
+                    "the 'Source: hippocraticai.com' line in the digest and "
+                    "the url_health domain-match check in T4a.",
+    )
     source_type: SourceType
     collection_method: CollectionMethod
     competitor: str = Field(
@@ -86,6 +119,14 @@ class Finding(BaseModel):
         max_length=64,
         pattern=r"^[a-z][a-z0-9_]*$",
         description="competitor.id from config/competitors.yaml.",
+    )
+    category: str | None = Field(
+        default=None,
+        max_length=64,
+        pattern=r"^[a-z][a-z0-9_]*$",
+        description="Competitor market category lifted from competitors.yaml. "
+                    "Used by render to group findings by strategic theme. "
+                    "Optional because pre-Sprint-8 findings may not have it.",
     )
 
     # --- Content ---
@@ -118,6 +159,51 @@ class Finding(BaseModel):
     # --- Scoring (raw, from T3) ---
     raw_severity: ScoreLevel = Field(description="LLM's initial severity (T3 extract).")
     raw_confidence: ScoreLevel = Field(description="LLM's initial confidence (T3 extract).")
+
+    # --- Confidence decomposition (Sprint 8) ---
+    extraction_confidence: ScoreLevel | None = Field(
+        default=None,
+        description="Confidence that title/summary/evidence faithfully reflect "
+                    "the source. Set at extract time.",
+    )
+    attribution_confidence: ScoreLevel | None = Field(
+        default=None,
+        description="Confidence that `competitor` is the actual subject of the "
+                    "article. Set by stage 4a (Flash attribution check).",
+    )
+    severity_confidence: ScoreLevel | None = Field(
+        default=None,
+        description="Confidence that the assigned severity is correct given the "
+                    "evidence. Set by stage 4b (Pro severity check).",
+    )
+
+    # --- Adversarial outputs (Sprint 8) ---
+    attribution_verdict: str | None = Field(
+        default=None,
+        max_length=16,
+        description=f"Stage-4a verdict. Canonical values: {ATTRIBUTION_VERDICTS}.",
+    )
+    attribution_reason: str | None = Field(
+        default=None,
+        max_length=1000,
+        description="Free-text reason from stage 4a when verdict != 'yes'.",
+    )
+    severity_verdict: str | None = Field(
+        default=None,
+        max_length=16,
+        description=f"Stage-4b verdict. Canonical values: {SEVERITY_VERDICTS}.",
+    )
+    severity_after_adversarial: ScoreLevel | None = Field(
+        default=None,
+        description="Severity Pro would assign given the evidence (may equal "
+                    "raw_severity if verdict=kept, or be lower if demoted).",
+    )
+    adversarial_reason: str | None = Field(
+        default=None,
+        max_length=2000,
+        description="Free-text reasoning from stage 4b. Logged for audit even "
+                    "when verdict=kept, so we can spot-check Pro's calls.",
+    )
 
     # --- Scoring (final, from T4) ---
     final_severity: ScoreLevel | None = Field(
@@ -177,18 +263,58 @@ class Finding(BaseModel):
                 raise ValueError(f"product id '{pid}' must be snake_case (lowercase + underscores)")
         return v
 
+    @field_validator("attribution_verdict")
+    @classmethod
+    def attribution_verdict_must_be_canonical(cls, v: str | None) -> str | None:
+        if v is not None and v not in ATTRIBUTION_VERDICTS:
+            raise ValueError(
+                f"attribution_verdict must be one of {ATTRIBUTION_VERDICTS}, got {v!r}"
+            )
+        return v
+
+    @field_validator("severity_verdict")
+    @classmethod
+    def severity_verdict_must_be_canonical(cls, v: str | None) -> str | None:
+        if v is not None and v not in SEVERITY_VERDICTS:
+            raise ValueError(
+                f"severity_verdict must be one of {SEVERITY_VERDICTS}, got {v!r}"
+            )
+        return v
+
     # ---- Convenience properties ----
 
     @property
     def effective_severity(self) -> int:
-        """final_severity if set, else raw_severity. The score downstream
-        consumers (render, deliver) should use."""
-        return self.final_severity if self.final_severity is not None else self.raw_severity
+        """final_severity if set, else severity_after_adversarial if set, else
+        raw_severity. The score downstream consumers (render, deliver) should use."""
+        if self.final_severity is not None:
+            return self.final_severity
+        if self.severity_after_adversarial is not None:
+            return self.severity_after_adversarial
+        return self.raw_severity
 
     @property
     def effective_confidence(self) -> int:
-        """final_confidence if set, else raw_confidence."""
-        return self.final_confidence if self.final_confidence is not None else self.raw_confidence
+        """final_confidence if set, else weakest of the three decomposed
+        confidence signals if any are set, else raw_confidence."""
+        if self.final_confidence is not None:
+            return self.final_confidence
+        decomposed = [
+            c for c in (
+                self.extraction_confidence,
+                self.attribution_confidence,
+                self.severity_confidence,
+            ) if c is not None
+        ]
+        if decomposed:
+            return min(decomposed)
+        return self.raw_confidence
+
+    @property
+    def display_url(self) -> str:
+        """URL to show in the rendered digest. Prefers canonical_url over the
+        raw (potentially Google News-wrapped) url."""
+        return str(self.canonical_url) if self.canonical_url is not None else str(self.url)
 
     @property
     def is_alert_eligible(self) -> bool:

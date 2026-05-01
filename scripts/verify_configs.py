@@ -35,6 +35,22 @@ def main() -> int:
         | {c["id"] for c in competitors_doc["healthcare_ai_cluster"]}
     )
 
+    # Sprint 8: every competitor must declare a market `category` from the
+    # CompetitorCategory enum. Keep this list in sync with
+    # src/schema/competitor.py.
+    allowed_categories = {
+        "agentic_clinical_ai",
+        "healthcare_dsp",
+        "healthcare_data_analytics",
+        "hcp_marketing_platform",
+        "hcp_publisher_destination",
+        "patient_access_coupon",
+        "dooh_poc_network",
+        "pharmacy_software",
+        "b2b_abm",
+        "ehr_workflow",
+    }
+
     errors: list[str] = []
 
     # products.yaml -> competitors.yaml: competitor refs
@@ -56,6 +72,17 @@ def main() -> int:
         for p in c.get("related_doceree_products", []):
             if p not in product_ids:
                 errors.append(f"competitors.yaml [{c['id']}].related_doceree_products: '{p}' not in products.yaml")
+
+    # competitors.yaml: every competitor must have a valid `category`.
+    for c in all_competitors:
+        cat = c.get("category")
+        if cat is None:
+            errors.append(f"competitors.yaml [{c['id']}]: missing required field 'category'")
+        elif cat not in allowed_categories:
+            errors.append(
+                f"competitors.yaml [{c['id']}]: category '{cat}' not in allowed set "
+                f"{sorted(allowed_categories)}"
+            )
 
     # source-registry.yaml -> competitors.yaml: competitor refs
     for s in sources_doc["sources"]:
@@ -89,6 +116,13 @@ def main() -> int:
     n_t2 = len(competitors_doc.get("tier_2_mvp_cohort", []))
     n_ai = len(competitors_doc["healthcare_ai_cluster"])
     print(f"Competitors:     {len(competitor_ids)} ({n_t1} Tier-1, {n_t2} Tier-2 MVP cohort, {n_ai} healthcare AI cluster)")
+    # Category histogram: confirms the taxonomy is exercised across the cohort.
+    cat_counts: dict[str, int] = {}
+    for c in all_competitors:
+        cat = c.get("category", "(missing)")
+        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+    cat_summary = ", ".join(f"{k}={v}" for k, v in sorted(cat_counts.items()))
+    print(f"Categories:      {len(cat_counts)} ({cat_summary})")
     print(f"Sources:         {len(sources_doc['sources'])}")
     print(f"Signal rules:    {len(signals_doc['rules'])}")
     print()

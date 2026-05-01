@@ -5,6 +5,15 @@ We then promote the draft into a full `Finding` by adding pipeline metadata:
 finding_id (deterministic hash from the RawItem), source_type and
 collection_method (from ingest), competitor (from ingest), captured_at (now),
 status (DRAFT). T4 fills the verification flags and final scores.
+
+Sprint 8 additions:
+- Forwards `canonical_url` and `publisher_domain` from RawItem onto Finding
+  so the renderer can display the publisher domain instead of an opaque
+  Google News redirect URL.
+- Looks up the competitor's market `category` from competitors.yaml via
+  `util.competitor_registry` and stamps it on the Finding for digest grouping.
+- Populates `extraction_confidence` from the LLM's `raw_confidence` so
+  downstream stages can read the decomposed-confidence path uniformly.
 """
 from __future__ import annotations
 
@@ -16,6 +25,7 @@ from clients.gemini import GeminiClient
 from schema.finding import Finding, FindingStatus
 from schema.finding_draft import FindingDraft
 from schema.raw_item import RawItem
+from util.competitor_registry import get_category
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +52,12 @@ def _build_finding(item: RawItem, draft: FindingDraft) -> Finding:
     return Finding(
         finding_id=finding_id,
         url=item.url,
+        canonical_url=item.canonical_url,
+        publisher_domain=item.publisher_domain,
         source_type=item.source_type,
         collection_method=item.collection_method,
         competitor=item.competitor,
+        category=get_category(item.competitor),
         title=draft.title,
         summary=draft.summary,
         evidence_quote=draft.evidence_quote,
@@ -52,6 +65,10 @@ def _build_finding(item: RawItem, draft: FindingDraft) -> Finding:
         products=draft.products,
         raw_severity=draft.raw_severity,
         raw_confidence=draft.raw_confidence,
+        # Mirror raw_confidence into the decomposed `extraction_confidence`
+        # so render and adversarial stages can treat it uniformly. Stages
+        # 4a/4b will fill the other two confidence dimensions.
+        extraction_confidence=draft.raw_confidence,
         status=FindingStatus.DRAFT,
         captured_at=datetime.now(timezone.utc),
         published_at=item.published_at,

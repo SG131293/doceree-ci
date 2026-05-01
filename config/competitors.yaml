@@ -20,9 +20,22 @@
 # promoted later via PR. SCOPE_LOCK rule: only the 50-source MVP cohort is scheduled
 # by default.
 #
-# Field reference (per build plan Day 2 spec):
-#   id, name, canonical_domain, rss_feeds, sitemaps, sec_cik (if public),
+# Field reference (per build plan Day 2 spec + Sprint 8 additions):
+#   id, name, canonical_domain, category, rss_feeds, sitemaps, sec_cik (if public),
 #   public_jobs_boards, related_doceree_products, rep_priority (1-5).
+#
+# `category` is the market grouping shown in the daily digest. Allowed values
+# are defined in src/schema/competitor.py::CompetitorCategory:
+#   agentic_clinical_ai          - clinical AI / scribe / agent platforms
+#   healthcare_dsp               - DSPs (Healthcare or cross-vertical entering health)
+#   healthcare_data_analytics    - data + analytics + RWD vendors
+#   hcp_marketing_platform       - end-to-end HCP marketing (POC + media)
+#   hcp_publisher_destination    - HCP destination sites + AI publishers
+#   patient_access_coupon        - PA, hub services, copay, consumer savings
+#   dooh_poc_network             - point-of-care / DOOH screen networks
+#   pharmacy_software            - PMS vendors
+#   b2b_abm                      - generic B2B ABM (no healthcare focus yet)
+#   ehr_workflow                 - EHR-native ad media / EHR ecosystem owners
 
 version: 1
 
@@ -31,6 +44,7 @@ tier_1:
   - id: optimizerx
     name: OptimizeRx
     canonical_domain: optimizerx.com
+    category: hcp_marketing_platform
     short_description: "Public POC competitor; 300+ EHR/ePrescribe partners; DAAP platform; Micro-Neighborhood Targeting."
     rss_feeds: []
     sitemaps:
@@ -44,6 +58,7 @@ tier_1:
   - id: veradigm
     name: Veradigm
     canonical_domain: veradigm.com
+    category: ehr_workflow
     short_description: "EHR ad media (formerly Allscripts); POCMA-certified; owns its own EHR ecosystem."
     rss_feeds: []
     sitemaps:
@@ -57,6 +72,7 @@ tier_1:
   - id: deepintent
     name: DeepIntent
     canonical_domain: deepintent.com
+    category: healthcare_dsp
     short_description: "Healthcare DSP; Cortex AI media buying; Helix HIPAA-ready cloud; $637M Vitruvian investment Sep 2025."
     rss_feeds: []
     sitemaps:
@@ -70,6 +86,7 @@ tier_1:
   - id: pulsepoint
     name: PulsePoint
     canonical_domain: pulsepoint.com
+    category: healthcare_dsp
     short_description: "Healthcare programmatic; HCP365 NPI measurement; Authenticated NPI with Medscape; Internet Brands/WebMD parent."
     rss_feeds: []
     sitemaps:
@@ -83,6 +100,7 @@ tier_1:
   - id: iqvia
     name: IQVIA
     canonical_domain: iqvia.com
+    category: healthcare_data_analytics
     short_description: "Global life-sciences data + analytics + tech. NPA, OneKey, Data Marketplace, AI Assistant; AWS strategic AI collaboration."
     rss_feeds: []
     sitemaps:
@@ -97,6 +115,7 @@ tier_1:
   - id: lasso
     name: Lasso (an IQVIA business)
     canonical_domain: iqviadigital.com
+    category: healthcare_data_analytics
     short_description: "Healthcare marketing OS; Blueprint self-service audience builder; AIM XR identity; IRI consumer-purchase data. Acquired by IQVIA Oct 2022."
     rss_feeds: []
     sitemaps:
@@ -110,6 +129,7 @@ tier_1:
   - id: covermymeds
     name: CoverMyMeds (McKesson)
     canonical_domain: covermymeds.com
+    category: patient_access_coupon
     short_description: "PA platform integrating with EHRs and pharmacies; serves manufacturers, providers, pharmacies."
     rss_feeds: []
     sitemaps:
@@ -123,6 +143,7 @@ tier_1:
   - id: connectiverx
     name: ConnectiveRx
     canonical_domain: connectiverx.com
+    category: patient_access_coupon
     short_description: "Co-pay assistance, hub services, branded co-pay coupons distributed via PoC, e-prescribing, and pharmacy channels. 1.2M+ providers via PoC network."
     rss_feeds: []
     sitemaps:
@@ -136,6 +157,7 @@ tier_1:
   - id: doximity
     name: Doximity
     canonical_domain: doximity.com
+    category: hcp_publisher_destination
     short_description: "Largest US digital network of medical professionals (~80% of US physicians); DocsGPT AI; pharma marketing solutions."
     rss_feeds: []
     sitemaps:
@@ -149,6 +171,7 @@ tier_1:
   - id: medscape
     name: Medscape (WebMD Health)
     canonical_domain: medscape.com
+    category: hcp_publisher_destination
     short_description: "Online HCP destination; Medscape Extend; Authenticated NPI data partner to PulsePoint."
     rss_feeds: []
     sitemaps:
@@ -162,6 +185,7 @@ tier_1:
   - id: openevidence
     name: OpenEvidence
     canonical_domain: openevidence.com
+    category: hcp_publisher_destination
     short_description: "AI clinical-decision-support platform; AMA, NEJM, Mayo Clinic, Wiley partnerships; $250M raise Jan 2026; DeepConsult agentic AI."
     rss_feeds: []
     sitemaps:
@@ -180,6 +204,7 @@ tier_2_mvp_cohort:
   - id: komodo_health
     name: Komodo Health
     canonical_domain: komodohealth.com
+    category: healthcare_data_analytics
     short_description: "Healthcare data; Real-World Data; Healthcare Map ~325M+ patients; Marmot AI; distributed via Snowflake Marketplace."
     rss_feeds: []
     sitemaps:
@@ -194,6 +219,7 @@ tier_2_mvp_cohort:
   - id: definitive_healthcare
     name: Definitive Healthcare
     canonical_domain: definitivehc.com
+    category: healthcare_data_analytics
     short_description: "Healthcare commercial intelligence; Monocl Expert; Carevoyance; Populi. Public company. Also a Doceree ABM partner — dual relationship."
     rss_feeds: []
     sitemaps:
@@ -208,6 +234,7 @@ tier_2_mvp_cohort:
   - id: trade_desk
     name: The Trade Desk
     canonical_domain: thetradedesk.com
+    category: healthcare_dsp
     short_description: "Independent omnichannel DSP; OpenPath; HCP endemic pharma marketplace launched 2025."
     rss_feeds: []
     sitemaps:
@@ -222,6 +249,7 @@ tier_2_mvp_cohort:
   - id: stackadapt
     name: StackAdapt
     canonical_domain: stackadapt.com
+    category: healthcare_dsp
     short_description: "AI-powered programmatic across native, display, CTV, video, audio, in-game, DOOH, email. Healthcare suite — NPI Targeting, Script Lift, EHR Inventory."
     rss_feeds: []
     sitemaps:
@@ -235,6 +263,7 @@ tier_2_mvp_cohort:
   - id: redsail_technologies
     name: RedSail Technologies
     canonical_domain: redsailtechnologies.com
+    category: pharmacy_software
     short_description: "Pharmacy software (PMS) — owns PioneerRx, QS/1, BestRx, PrimeCare. ~12,000 independent pharmacies through PioneerRx."
     rss_feeds: []
     sitemaps:
@@ -248,6 +277,7 @@ tier_2_mvp_cohort:
   - id: patientpoint
     name: PatientPoint
     canonical_domain: patientpoint.com
+    category: dooh_poc_network
     short_description: "Owned point-of-care DOOH network; ~35,000 physician offices; PatientPoint Health Audiences (programmatic)."
     rss_feeds: []
     sitemaps:
@@ -261,6 +291,7 @@ tier_2_mvp_cohort:
   - id: vistar_media
     name: Vistar Media
     canonical_domain: vistarmedia.com
+    category: dooh_poc_network
     short_description: "Cross-vertical programmatic DOOH platform — DSP, SSP, ad-server."
     rss_feeds: []
     sitemaps:
@@ -274,6 +305,7 @@ tier_2_mvp_cohort:
   - id: goodrx
     name: GoodRx
     canonical_domain: goodrx.com
+    category: patient_access_coupon
     short_description: "Consumer prescription savings marketplace; recent expanded access deals with manufacturers (Wegovy HD; Lilly's Foundayo)."
     rss_feeds: []
     sitemaps:
@@ -288,6 +320,7 @@ tier_2_mvp_cohort:
   - id: demandbase
     name: Demandbase
     canonical_domain: demandbase.com
+    category: b2b_abm
     short_description: "Generic B2B ABM platform — Demandbase One ABX. 150M+ contacts, 99M+ companies."
     rss_feeds: []
     sitemaps:
@@ -308,6 +341,7 @@ healthcare_ai_cluster:
   - id: synthio_labs
     name: Synthio Labs
     canonical_domain: null  # per master PRD: "Needs source discovery"
+    category: agentic_clinical_ai
     short_description: "Pharma-specific AI; named in Doceree Onboarding Guide as a RepTwin competitor; limited public information."
     rss_feeds: []
     sitemaps: []
@@ -323,6 +357,7 @@ healthcare_ai_cluster:
   - id: hippocratic_ai
     name: Hippocratic AI
     canonical_domain: hippocraticai.com
+    category: agentic_clinical_ai
     short_description: "Safety-focused healthcare LLMs; Constellation Architecture; 1.8M+ patient calls; 50+ partners; $404M raised."
     rss_feeds: []
     sitemaps:
@@ -337,6 +372,7 @@ healthcare_ai_cluster:
   - id: glass_health
     name: Glass Health
     canonical_domain: glass.health
+    category: agentic_clinical_ai
     short_description: "AI-powered clinical decision-support and differential-diagnosis platform; HCP-facing."
     rss_feeds: []
     sitemaps: []
@@ -351,6 +387,7 @@ healthcare_ai_cluster:
   - id: suki
     name: Suki AI
     canonical_domain: suki.ai
+    category: agentic_clinical_ai
     short_description: "AI voice assistant for clinical documentation; ambient scribe; partnerships with Epic, Athena, MEDITECH."
     rss_feeds: []
     sitemaps:
@@ -366,6 +403,7 @@ healthcare_ai_cluster:
   - id: abridge
     name: Abridge
     canonical_domain: abridge.com
+    category: agentic_clinical_ai
     short_description: "Generative-AI ambient clinical documentation; Epic partnership; large enterprise deployments."
     rss_feeds: []
     sitemaps:
@@ -381,6 +419,7 @@ healthcare_ai_cluster:
   - id: nabla
     name: Nabla
     canonical_domain: nabla.com
+    category: agentic_clinical_ai
     short_description: "AI ambient assistant for clinicians; multi-language; EHR integrations."
     rss_feeds: []
     sitemaps:
@@ -396,6 +435,7 @@ healthcare_ai_cluster:
   - id: ambience
     name: Ambience Healthcare
     canonical_domain: ambiencehealthcare.com
+    category: agentic_clinical_ai
     short_description: "AI ambient documentation and CDI/coding; large health-system deployments."
     rss_feeds: []
     sitemaps: []
@@ -410,6 +450,7 @@ healthcare_ai_cluster:
   - id: deepscribe
     name: DeepScribe
     canonical_domain: deepscribe.ai
+    category: agentic_clinical_ai
     short_description: "AI medical scribe; multi-specialty ambient clinical documentation."
     rss_feeds: []
     sitemaps:
@@ -425,6 +466,7 @@ healthcare_ai_cluster:
   - id: curai
     name: Curai Health
     canonical_domain: curaihealth.com
+    category: agentic_clinical_ai
     short_description: "AI-powered virtual care platform; clinical AI for primary care."
     rss_feeds: []
     sitemaps: []

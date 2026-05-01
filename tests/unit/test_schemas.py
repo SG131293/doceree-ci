@@ -13,6 +13,7 @@ from pydantic import ValidationError
 
 from schema import (
     CollectionMethod,
+    CompetitorCategory,
     CompetitorRef,
     CompetitorTier,
     Finding,
@@ -22,6 +23,7 @@ from schema import (
     Severity,
     SourceRef,
     SourceType,
+    category_display_name,
 )
 
 
@@ -109,10 +111,50 @@ class TestCompetitorRef:
         for tier in CompetitorTier:
             c = CompetitorRef(id="optimizerx", name="OptimizeRx", tier=tier)
             assert c.tier == tier
+            assert c.category is None  # default
 
     def test_id_pattern(self) -> None:
         with pytest.raises(ValidationError):
             CompetitorRef(id="OptimizeRx", name="OptimizeRx", tier=CompetitorTier.TIER_1)
+
+    def test_with_category(self) -> None:
+        c = CompetitorRef(
+            id="hippocratic_ai",
+            name="Hippocratic AI",
+            tier=CompetitorTier.HEALTHCARE_AI_CLUSTER,
+            category=CompetitorCategory.AGENTIC_CLINICAL_AI,
+        )
+        assert c.category == CompetitorCategory.AGENTIC_CLINICAL_AI
+
+    def test_invalid_category_rejected(self) -> None:
+        with pytest.raises(ValidationError):
+            CompetitorRef(
+                id="optimizerx",
+                name="OptimizeRx",
+                tier=CompetitorTier.TIER_1,
+                category="not_a_category",  # type: ignore[arg-type]
+            )
+
+
+class TestCompetitorCategory:
+    def test_all_categories_have_display_names(self) -> None:
+        # Every enum value should resolve to a human-readable label.
+        for cat in CompetitorCategory:
+            label = category_display_name(cat)
+            assert isinstance(label, str)
+            assert len(label) > 0
+            # Display names are NOT snake_case (they're titles).
+            assert label != cat.value
+
+    def test_display_name_accepts_string(self) -> None:
+        assert category_display_name("agentic_clinical_ai") == "Agentic Clinical AI"
+
+    def test_display_name_unknown_returns_input(self) -> None:
+        assert category_display_name("unknown_category") == "unknown_category"
+
+    def test_no_duplicate_display_names(self) -> None:
+        labels = [category_display_name(cat) for cat in CompetitorCategory]
+        assert len(set(labels)) == len(labels), f"duplicate labels: {labels}"
 
 
 class TestSourceRef:
@@ -310,7 +352,8 @@ class TestFindingInvalid:
 class TestFindingStatusEnum:
     def test_all_lifecycle_states_present(self) -> None:
         # Sanity check the state machine has every lifecycle state the
-        # build plan / error matrix references.
+        # build plan / error matrix references. Sprint 8 added the two
+        # adversarial-rejection states.
         names = {s.name for s in FindingStatus}
         assert names == {
             "DRAFT",
@@ -320,7 +363,141 @@ class TestFindingStatusEnum:
             "REJECTED_URL",
             "REJECTED_DEDUPE",
             "REJECTED_INVALID",
+            "REJECTED_ATTRIBUTION",
+            "REJECTED_ADVERSARIAL",
         }
+
+
+class TestFindingSprint8Additions:
+    """Sprint 8 added category, canonical_url, publisher_domain, decomposed
+    confidence, and adversarial verdict fields. All are optional for back-
+    compat with pre-Sprint-8 callers."""
+
+    def test_new_fields_default_none(self, valid_finding_kwargs: dict) -> None:
+        f = Finding(**valid_finding_kwargs)
+        assert f.category is None
+        assert f.canonical_url is None
+        assert f.publisher_domain is None
+        assert f.attribution_confidence is None
+        assert f.extraction_confidence is None
+        assert f.severity_confidence is None
+        assert f.attribution_verdict is None
+        assert f.attribution_reason is None
+        assert f.severity_verdict is None
+        assert f.severity_after_adversarial is None
+        assert f.adversarial_reason is None
+
+    def test_category_snake_case_enforced(self, valid_finding_kwargs: dict) -> None:
+        valid_finding_kwargs["category"] = "Agentic_AI"  # Capital
+        with pytest.raises(ValidationError):
+            Finding(**valid_finding_kwargs)
+
+    def test_category_accepts_valid_value(self, valid_finding_kwargs: dict) -> None:
+        valid_finding_kwargs["category"] = "agentic_clinical_ai"
+        f = Finding(**valid_finding_kwargs)
+        assert f.category == "agentic_clinical_ai"
+
+    def test_canonical_url_optional(self, valid_finding_kwargs: dict) -> None:
+        valid_finding_kwargs["canonical_url"] = "https://hippocraticai.com/news/polaris-5"
+        f = Finding(**valid_finding_kwargs)
+        assert str(f.canonical_url).startswith("https://hippocraticai.com")
+
+    def test_publisher_domain(self, valid_finding_kwargs: dict) -> None:
+        valid_finding_kwargs["publisher_domain"] = "hippocraticai.com"
+        f = Finding(**valid_finding_kwargs)
+        assert f.publisher_domain == "hippocraticai.com"
+
+    def test_attribution_verdict_canonical_values(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        for v in ("yes", "no", "unclear"):
+            valid_finding_kwargs["attribution_verdict"] = v
+            f = Finding(**valid_finding_kwargs)
+            assert f.attribution_verdict == v
+
+    def test_attribution_verdict_invalid_rejected(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        valid_finding_kwargs["attribution_verdict"] = "maybe"
+        with pytest.raises(ValidationError):
+            Finding(**valid_finding_kwargs)
+
+    def test_severity_verdict_canonical_values(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        for v in ("kept", "demoted", "rejected"):
+            valid_finding_kwargs["severity_verdict"] = v
+            f = Finding(**valid_finding_kwargs)
+            assert f.severity_verdict == v
+
+    def test_severity_verdict_invalid_rejected(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        valid_finding_kwargs["severity_verdict"] = "approve"
+        with pytest.raises(ValidationError):
+            Finding(**valid_finding_kwargs)
+
+    def test_decomposed_confidence_range(self, valid_finding_kwargs: dict) -> None:
+        valid_finding_kwargs["attribution_confidence"] = 6  # out of range
+        with pytest.raises(ValidationError):
+            Finding(**valid_finding_kwargs)
+
+    def test_effective_confidence_uses_min_of_decomposed(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        # Decomposed confidence: extraction=5, attribution=2, severity=4 -> min=2
+        valid_finding_kwargs["raw_confidence"] = 5
+        valid_finding_kwargs["extraction_confidence"] = 5
+        valid_finding_kwargs["attribution_confidence"] = 2
+        valid_finding_kwargs["severity_confidence"] = 4
+        f = Finding(**valid_finding_kwargs)
+        assert f.effective_confidence == 2
+
+    def test_effective_confidence_falls_back_to_raw_when_no_decomposed(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        valid_finding_kwargs["raw_confidence"] = 4
+        f = Finding(**valid_finding_kwargs)
+        assert f.effective_confidence == 4
+
+    def test_effective_severity_uses_after_adversarial_when_set(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        valid_finding_kwargs["raw_severity"] = 4
+        valid_finding_kwargs["severity_after_adversarial"] = 2
+        f = Finding(**valid_finding_kwargs)
+        assert f.effective_severity == 2
+
+    def test_effective_severity_final_overrides_adversarial(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        # final_severity wins over severity_after_adversarial.
+        valid_finding_kwargs["raw_severity"] = 4
+        valid_finding_kwargs["severity_after_adversarial"] = 2
+        valid_finding_kwargs["final_severity"] = 3
+        f = Finding(**valid_finding_kwargs)
+        assert f.effective_severity == 3
+
+    def test_display_url_prefers_canonical(
+        self, valid_finding_kwargs: dict
+    ) -> None:
+        valid_finding_kwargs["url"] = (
+            "https://news.google.com/rss/articles/CBMiabc123def"
+        )
+        valid_finding_kwargs["canonical_url"] = "https://hippocraticai.com/news/x"
+        f = Finding(**valid_finding_kwargs)
+        assert f.display_url == "https://hippocraticai.com/news/x"
+
+    def test_display_url_falls_back_to_url(self, valid_finding_kwargs: dict) -> None:
+        f = Finding(**valid_finding_kwargs)
+        assert f.display_url == str(f.url)
+
+
+class TestFindingStatusSprint8Additions:
+    def test_new_rejection_states_present(self) -> None:
+        names = {s.name for s in FindingStatus}
+        assert "REJECTED_ATTRIBUTION" in names
+        assert "REJECTED_ADVERSARIAL" in names
 
 
 class TestRoundTripJSON:

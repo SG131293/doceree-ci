@@ -74,6 +74,22 @@ class TestRawItemInvalid:
             RawItem(**valid_raw_item_kwargs)
 
 
+class TestRawItemSprint8Additions:
+    def test_canonical_url_default_none(self, valid_raw_item_kwargs: dict) -> None:
+        item = RawItem(**valid_raw_item_kwargs)
+        assert item.canonical_url is None
+        assert item.publisher_domain is None
+
+    def test_canonical_url_optional(self, valid_raw_item_kwargs: dict) -> None:
+        valid_raw_item_kwargs["canonical_url"] = (
+            "https://hippocraticai.com/news/polaris"
+        )
+        valid_raw_item_kwargs["publisher_domain"] = "hippocraticai.com"
+        item = RawItem(**valid_raw_item_kwargs)
+        assert str(item.canonical_url).startswith("https://hippocraticai.com")
+        assert item.publisher_domain == "hippocraticai.com"
+
+
 class TestContentHash:
     def test_stable(self, valid_raw_item_kwargs: dict) -> None:
         a = RawItem(**valid_raw_item_kwargs)

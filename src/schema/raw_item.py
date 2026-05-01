@@ -5,6 +5,12 @@ enough metadata for the filter and extract stages to reason about the item
 without going back to the source. RawItems are NOT persisted to the archive;
 only Findings are. RawItems exist only for the duration of a single pipeline
 run.
+
+Sprint 8 additions:
+- `canonical_url` and `publisher_domain` are populated by the ingester when
+  the wire URL is a wrapper (e.g., Google News redirect). Both flow forward
+  into the Finding so the renderer can show the publisher domain instead of
+  the opaque wrapper URL.
 """
 from __future__ import annotations
 
@@ -28,6 +34,17 @@ class RawItem(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     url: HttpUrl
+    canonical_url: HttpUrl | None = Field(
+        default=None,
+        description="Publisher's article URL if `url` is a wrapper (e.g., a "
+                    "Google News redirect). None when `url` is already canonical.",
+    )
+    publisher_domain: str | None = Field(
+        default=None,
+        max_length=255,
+        description="eTLD+1 of canonical_url (or url). Used by url_health to "
+                    "verify the article is actually about the named competitor.",
+    )
     title: str = Field(min_length=1, max_length=1000)
     summary: str = Field(default="", max_length=10_000)
     competitor: str = Field(
