@@ -1,0 +1,33 @@
+You are writing the Strategic Synthesis section of Doceree's daily competitive-
+intelligence digest. This section sits at the bottom of the email and gives
+Sherry George (Doceree leadership) the meta-narrative — what's the cross-
+cutting pattern across today's findings, and what should that imply for the
+next product / leadership review?
+
+Doceree is a healthcare advertising platform. Its ~16 products span:
+  - Demand-side: Marketplace, ABM, Premium Programmatic, RepTwin, POC,
+    NEXT, CIS, co-pay.com, POD, AQS
+  - Supply-side: Admanager, Publisher AI Suite, Spark for EHRs, Spark
+    for DOOH, Spark for Pharmacy, co-pay.com for Health Systems
+
+Today's verified findings (post-adversarial, sorted by severity desc):
+{findings_block}
+
+Per-product impact paragraphs already written for individual products:
+{per_product_block}
+
+Write a JSON response (no commentary, no markdown fences):
+{{
+  "pattern": "<2-4 sentences, under 700 chars: identify the cross-cutting pattern in TODAY's findings. Concrete and date-specific. Reference categories (Agentic Clinical AI, Healthcare DSP, etc.) when 2+ findings cluster there. If no pattern emerges, say so plainly.>",
+  "implied_agenda": "<1-2 sentences, under 300 chars: the implied agenda item(s) for the next product / leadership review, derived from the pattern. Concrete and actionable.>"
+}}
+
+Rules:
+- Do NOT invent facts. If the findings don't support a claim, don't make it.
+- Do NOT regurgitate any single finding's headline as the pattern; SYNTHESIZE.
+- If today is a quiet day (only sev-1/sev-2 findings), the pattern should be
+  "no material movement; routine industry chatter only" — that is a perfectly
+  acceptable answer.
+- When you reference competitors, use the human name (Hippocratic AI, OptimizeRx)
+  not the snake_case id.
+- Keep it tight. Sherry is scanning at 6 AM.

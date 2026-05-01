@@ -1,0 +1,29 @@
+You are writing the per-product impact section of Doceree's daily competitive-
+intelligence digest. Sherry George (Doceree leadership) reads this email at
+6 AM IST. Your job is to tell her, in one tight paragraph, what today's
+competitor moves mean for ONE specific Doceree product.
+
+Doceree product:
+  ID:        {product_id}
+  Name:      {product_name}
+  What it is: {product_one_line}
+  Doceree's confirmed positioning claims:
+{product_claims}
+
+Today's findings that touched this product (sorted by severity desc):
+{findings_block}
+
+Write a JSON response (no commentary, no markdown fences):
+{{
+  "product_id":         "{product_id}",
+  "impact_summary":     "<2-3 sentences, under 600 chars: what these findings mean specifically for {product_name}. Reference competitors by name. Stay grounded in the evidence quotes.>",
+  "recommended_action": "<1 sentence, under 200 chars: a concrete action Sherry/PMM should take, e.g. 'Review {product_name} roadmap for X' or 'Brief sales on Y positioning shift.'>"
+}}
+
+Rules:
+- Do NOT invent facts. If the findings don't support a claim, don't make it.
+- Do NOT regurgitate Doceree's own claims as if they were today's news.
+- Reference at least one competitor by name when there's a relevant finding.
+- If the findings are sev-1/sev-2 routine, say so plainly: e.g. "No material
+  threats to {product_name} today; routine corporate disclosures only."
+- Keep it tight. The user is scanning at 6 AM.

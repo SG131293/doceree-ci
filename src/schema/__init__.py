@@ -19,7 +19,9 @@ from .finding_draft import (
     AttributionCheck,
     FilterDecision,
     FindingDraft,
+    PerProductSynthesis,
     SeverityAdversarialCheck,
+    StrategicSynthesis,
 )
 from .product import JourneyStage, ProductRef
 from .raw_item import RawItem
@@ -37,11 +39,13 @@ __all__ = [
     "FindingDraft",
     "FindingStatus",
     "JourneyStage",
+    "PerProductSynthesis",
     "ProductRef",
     "RawItem",
     "Severity",
     "SeverityAdversarialCheck",
     "SourceRef",
     "SourceType",
+    "StrategicSynthesis",
     "category_display_name",
 ]
