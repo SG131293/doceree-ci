@@ -90,6 +90,16 @@ CALL_TYPES: dict[str, CallType] = {
         thinking_budget=512,
         max_output_tokens=2048,
     ),
+    # Sprint 8 stage 4a: cheap attribution check on Flash. Per RawItem,
+    # answers "is this competitor actually the subject?" before paying for
+    # extract on items the source feed mistakenly tagged.
+    "attribution_check": CallType(
+        name="attribution_check",
+        model=MODEL_FLASH,
+        temperature=0.0,
+        thinking_budget=0,
+        max_output_tokens=256,
+    ),
     "adversarial_check": CallType(
         name="adversarial_check",
         model=MODEL_PRO,
@@ -353,6 +363,21 @@ class GeminiClient:
         """T3 extract call. Flash, thinking_budget=512, temperature=0.1."""
         return await self.generate(
             call_type="extract",
+            prompt=prompt,
+            response_schema=response_schema,
+        )
+
+    async def attribution_check(
+        self,
+        prompt: str,
+        *,
+        response_schema: type[BaseModel] | None = None,
+    ) -> Any:
+        """T4a attribution-check call (Sprint 8). Flash, thinking_budget=0,
+        temperature=0. Cheap per-item check that verifies the competitor
+        tag before we spend extract tokens."""
+        return await self.generate(
+            call_type="attribution_check",
             prompt=prompt,
             response_schema=response_schema,
         )

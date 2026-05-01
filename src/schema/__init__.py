@@ -15,13 +15,19 @@ from .competitor import (
     category_display_name,
 )
 from .finding import Finding, FindingStatus
-from .finding_draft import FilterDecision, FindingDraft
+from .finding_draft import (
+    AttributionCheck,
+    FilterDecision,
+    FindingDraft,
+    SeverityAdversarialCheck,
+)
 from .product import JourneyStage, ProductRef
 from .raw_item import RawItem
 from .severity import Severity
 from .source import CollectionMethod, SourceRef, SourceType
 
 __all__ = [
+    "AttributionCheck",
     "CollectionMethod",
     "CompetitorCategory",
     "CompetitorRef",
@@ -34,6 +40,7 @@ __all__ = [
     "ProductRef",
     "RawItem",
     "Severity",
+    "SeverityAdversarialCheck",
     "SourceRef",
     "SourceType",
     "category_display_name",

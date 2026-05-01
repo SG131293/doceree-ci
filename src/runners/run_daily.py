@@ -1,16 +1,23 @@
-"""Day-6 minimum-viable daily run.
+"""Daily run orchestrator.
 
-Orchestrates: ingest (RSS) -> filter (Flash-Lite) -> extract (Flash) ->
-render (plaintext) -> deliver (Gmail). Targets a small set of competitors
-per the build plan's Day-6 scope (DeepIntent, OptimizeRx, Hippocratic AI -
-Synthio Labs is in the master PRD but lacks a verifiable URL, so we substitute
-Hippocratic for the third slot).
+Pipeline (Sprint 8 layout):
 
-For Day 6, RSS feeds are pulled from Google News with a per-competitor query
-(`https://news.google.com/rss/search?q={query}+when:1d`). This gives us
-real, fresh data without depending on competitor-specific RSS endpoints
-that may or may not exist. Day 17 transitions to sitemap diff against the
-50-source registry.
+    T1 ingest       -> RawItems from configured feeds
+    T2 filter       -> Flash-Lite drops noise
+    T4a attribution -> Flash drops misattributed items (Sprint 8)
+    T3 extract      -> Flash promotes RawItem -> Finding
+    T4b adversarial -> Pro challenges severity, may demote / reject (Sprint 8)
+    T7 render       -> plaintext digest (renderer rewrite lands in 8f)
+    T8 deliver      -> Gmail (or stdout in --dry-run)
+
+Targets a small set of competitors per the build plan's Day-6 scope; will
+expand once the source registry is fully RSS-ready.
+
+For Day 6 / Sprint 8, RSS feeds are pulled from Google News with a per-
+competitor query (`https://news.google.com/rss/search?q={query}+when:1d`).
+This gives us real, fresh data without depending on competitor-specific
+RSS endpoints that may or may not exist. Day 17 will transition to sitemap
+diff against the 50-source registry.
 
 CLI:
     python scripts/run_daily.py [--dry-run] [--send-to email] [--max-items N]
@@ -19,7 +26,7 @@ CLI:
   --send-to       Override recipient (defaults to GMAIL_USER_EMAIL).
   --max-items     Cap RSS items per competitor (defaults to 10).
 
-Build-plan reference: docs/2026-04-30-lean-ci-build-plan.md, Day 6.
+Build-plan reference: docs/2026-04-30-lean-ci-build-plan.md, Day 6 + Day 8.
 """
 from __future__ import annotations
 
@@ -35,6 +42,13 @@ from clients.gmail import GmailClient
 from clients.http import HttpClient
 from pipeline.extract import extract_findings
 from pipeline.filter import filter_items, kept
+from pipeline.verify import (
+    attach_attribution_to_finding,
+    attribution_check_items,
+    kept_after_attribution,
+    kept_after_severity,
+    severity_adversarial_findings,
+)
 from render.render import render_plaintext, render_subject
 from schema.finding import Finding
 from schema.source import SourceType
@@ -136,15 +150,46 @@ async def run(
         kept_items = kept(decisions)
         logger.info("Filter kept %d / %d items", len(kept_items), len(all_items))
 
+        # T4a ATTRIBUTION CHECK (Sprint 8)
+        # Drops items whose claimed competitor is not the actual subject.
+        attribution_results = await attribution_check_items(kept_items, gemini=gemini)
+        attributed_items = kept_after_attribution(attribution_results)
+        logger.info(
+            "Attribution check kept %d / %d items",
+            len(attributed_items), len(kept_items),
+        )
+        # Map url -> decision so we can stamp the verdict on each Finding
+        # after extract. URLs are unique per item so this is a stable join key.
+        attribution_by_url = {
+            str(r.item.url): r.decision for r in attribution_results if r.kept
+        }
+
         # T3 EXTRACT
-        findings = await extract_findings(kept_items, gemini=gemini)
+        findings = await extract_findings(attributed_items, gemini=gemini)
         logger.info("Extract produced %d findings", len(findings))
 
-    # T7 RENDER (T4 verify + T5/T6 synth land Days 8-19)
-    plaintext = render_plaintext(findings)
-    subject = render_subject(findings)
+        # Stamp attribution onto each Finding.
+        for finding in findings:
+            decision = attribution_by_url.get(str(finding.url))
+            if decision is not None:
+                attach_attribution_to_finding(finding, decision)
+
+        # T4b SEVERITY ADVERSARIAL (Sprint 8)
+        findings = await severity_adversarial_findings(findings, gemini=gemini)
+        kept_findings = kept_after_severity(findings)
+        n_rejected = len(findings) - len(kept_findings)
+        logger.info(
+            "Severity adversarial kept %d / %d findings (%d rejected)",
+            len(kept_findings), len(findings), n_rejected,
+        )
+
+    # T7 RENDER (renderer rewrite in 8f; T5/T6 synth land before that)
+    plaintext = render_plaintext(kept_findings)
+    subject = render_subject(kept_findings)
 
     if out_dir is not None:
+        # Write the FULL findings list (including rejected ones) for audit;
+        # the renderer only consumed kept_findings.
         write_artifacts(out_dir, findings=findings, plaintext=plaintext, subject=subject)
         logger.info("Wrote artifacts to %s", out_dir)
 
@@ -166,7 +211,7 @@ async def run(
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Doceree CI daily run (Day 6 MVP).")
+    p = argparse.ArgumentParser(description="Doceree CI daily run.")
     p.add_argument(
         "--dry-run",
         action="store_true",

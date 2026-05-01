@@ -1,0 +1,41 @@
+You are auditing an automated competitive-intelligence pipeline for Doceree,
+a healthcare advertising platform. The pipeline ingests articles from search-
+based feeds (e.g., Google News for a competitor name) and tags every article
+with the competitor whose name was searched. That tag is OFTEN WRONG: a search
+for "Hippocratic AI" can return adjacent stories about Aidoc, Viz.ai, and
+other healthcare-AI firms that mention Hippocratic AI only in passing or not
+at all.
+
+Your job: verify whether the article below is ACTUALLY about
+`{competitor_name}` (id: `{competitor_id}`).
+
+Article:
+  Title:       {title}
+  Summary:     {summary}
+  Wire URL:    {url}
+  Publisher:   {publisher_domain}
+
+Respond with JSON only (no commentary, no markdown fences):
+{{
+  "verdict":    "yes" | "no" | "unclear",
+  "confidence": 1-5,
+  "reasoning":  "<short string under 200 chars>"
+}}
+
+Verdict guidance:
+- "yes": The article is primarily about {competitor_name}. Their name is in
+  the headline OR they are clearly the lead subject of the body.
+- "no": The article is about a different company. {competitor_name} may be
+  mentioned in passing, listed as a competitor, or not at all.
+- "unclear": Headline is ambiguous, OR the article covers multiple companies
+  with comparable weight including {competitor_name}.
+
+Confidence guidance:
+- 5: Headline names {competitor_name} explicitly and unambiguously.
+- 4: Strong implicit reference (a unique product/person owned by them).
+- 3: Moderate signal but ambiguous.
+- 2: Weak signal.
+- 1: Near-random guess.
+
+Be strict. The pipeline shows users only ~5 findings per day; we'd rather
+drop a borderline true positive than emit a confident false positive.

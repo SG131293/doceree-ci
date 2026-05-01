@@ -1,19 +1,18 @@
-"""FindingDraft: the LLM-fillable subset of a Finding.
+"""LLM-fillable response schemas for each pipeline stage.
 
-The extract stage (T3) prompts Gemini Flash to fill these fields from a
-RawItem. The runner then promotes a (RawItem, FindingDraft) pair into a full
-Finding by adding the metadata the LLM cannot know (finding_id, source_type,
-collection_method, competitor, captured_at, status).
+Each schema is the `response_schema` for one Gemini call. Keeping these
+separate from the canonical `Finding` model lets us:
+  - Use them as Gemini structured-output schemas without leaking pipeline-
+    internal fields into the prompt context.
+  - Apply provenance / lifecycle defaults deterministically in the
+    pipeline rather than trusting the LLM to fill them.
 
-Keeping Draft and Finding separate lets us:
-  - Use FindingDraft as the `response_schema` for Gemini structured output
-    without leaking pipeline-internal fields into the prompt context.
-  - Apply provenance / lifecycle defaults deterministically rather than
-    trusting the LLM to fill them.
+Sprint 8 added two adversarial schemas (`AttributionCheck`,
+`SeverityAdversarialCheck`) — outputs of the new T4a / T4b stages.
 """
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -44,3 +43,34 @@ class FilterDecision(BaseModel):
 
     keep: bool
     reason: str = Field(min_length=1, max_length=64)
+
+
+class AttributionCheck(BaseModel):
+    """Stage 4a output. Flash answers: is the named competitor the SUBJECT
+    of this article?
+
+    `verdict='no'` causes the item to be dropped before extract. `unclear`
+    passes through but lowers `attribution_confidence` on the resulting
+    Finding so the renderer can surface uncertainty."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    verdict: Literal["yes", "no", "unclear"]
+    confidence: ScoreLevel
+    reasoning: str = Field(min_length=1, max_length=200)
+
+
+class SeverityAdversarialCheck(BaseModel):
+    """Stage 4b output. Pro answers: does the evidence quote support the
+    assigned severity?
+
+    `verdict='rejected'` causes the Finding to be dropped from the digest.
+    `demoted` keeps it but writes severity_after_check to the Finding.
+    `kept` is the default green-light outcome."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    verdict: Literal["kept", "demoted", "rejected"]
+    severity_after_check: ScoreLevel
+    confidence: ScoreLevel
+    reasoning: str = Field(min_length=1, max_length=500)
