@@ -93,12 +93,16 @@ CALL_TYPES: dict[str, CallType] = {
     # Sprint 8 stage 4a: cheap attribution check on Flash. Per RawItem,
     # answers "is this competitor actually the subject?" before paying for
     # extract on items the source feed mistakenly tagged.
+    # max_output_tokens=512 (was 256): the May-1 dry run truncated 2 of 3
+    # responses mid-string ("...stock ticker \"OPRX" with no closing quote)
+    # because the JSON envelope + reasoning ate the cap. 512 gives headroom
+    # without meaningfully raising cost.
     "attribution_check": CallType(
         name="attribution_check",
         model=MODEL_FLASH,
         temperature=0.0,
         thinking_budget=0,
-        max_output_tokens=256,
+        max_output_tokens=512,
     ),
     "adversarial_check": CallType(
         name="adversarial_check",
@@ -213,7 +217,12 @@ class GeminiClient:
         flash_rpm: float = 10,
         pro_rpm: float = 5,
         shared_tpm: float = 250_000,
-        max_retry_attempts: int = 3,
+        # Bumped 3 -> 5 after the May-1 dry run: synth_strategic hit three
+        # back-to-back Pro 503s during a Google capacity spike. With
+        # wait_exponential_jitter(initial=1, max=16, exp_base=4), 5 attempts
+        # adds at most ~32s of additional wall time on persistent failure —
+        # acceptable for the daily cron, and only spent when 2xx is unreachable.
+        max_retry_attempts: int = 5,
     ) -> None:
         key = api_key if api_key is not None else os.environ.get("GEMINI_API_KEY", "").strip()
         if not key:

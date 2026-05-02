@@ -110,6 +110,54 @@ class TestExtractFinding:
         assert str(finding.canonical_url) == "https://deepintent.com/news/cortex"
         assert finding.publisher_domain == "deepintent.com"
 
+    async def test_products_kept_when_llm_returns_them(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        mock_gemini.extract.return_value = _draft(  # type: ignore[attr-defined]
+            products=["premium_programmatic", "next"]
+        )
+        finding = await extract_finding(_item(), gemini=mock_gemini)
+        assert finding is not None
+        assert finding.products == ["premium_programmatic", "next"]
+
+    async def test_products_backfilled_from_competitor_when_llm_empty(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """When the LLM returns an empty products list (Flash is too
+        conservative), backfill from the competitor's `related_doceree_products`
+        so the BY-PRODUCT digest section + per-product synth still run."""
+        mock_gemini.extract.return_value = _draft(products=[])  # type: ignore[attr-defined]
+        # _item() uses competitor="deepintent" which maps to
+        # [premium_programmatic, next, poc, spark_for_ehrs, spark_for_dooh].
+        # Capped at 3.
+        finding = await extract_finding(_item(), gemini=mock_gemini)
+        assert finding is not None
+        assert len(finding.products) > 0
+        assert len(finding.products) <= 3
+        # Should include at least one of DeepIntent's known related products.
+        assert any(
+            p in finding.products
+            for p in ("premium_programmatic", "next", "poc", "spark_for_ehrs")
+        )
+
+    async def test_products_backfill_capped_at_three(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        mock_gemini.extract.return_value = _draft(products=[])  # type: ignore[attr-defined]
+        # OptimizeRx maps to 5 products; backfill should cap at 3.
+        item = RawItem(
+            url="https://example.com/oprx",
+            title="x",
+            summary="x",
+            competitor="optimizerx",
+            source_type=SourceType.PRESS_RELEASE,
+            collection_method=CollectionMethod.RSS,
+            published_at=datetime.now(timezone.utc),
+        )
+        finding = await extract_finding(item, gemini=mock_gemini)
+        assert finding is not None
+        assert len(finding.products) <= 3
+
     async def test_finding_id_is_deterministic_hash_of_item(
         self, mock_gemini: GeminiClient
     ) -> None:

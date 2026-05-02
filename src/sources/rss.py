@@ -92,6 +92,19 @@ def _strip_html(s: str) -> str:
     return s.strip()
 
 
+_GOOGLE_NEWS_HOSTS = ("news.google.com", "google.com/url")
+
+
+def _is_google_news_url(url: str) -> bool:
+    """True iff `url` is itself a Google News redirect or self-reference.
+
+    These URLs aren't useful as canonical pointers — they just point back
+    into Google's own aggregator with the same opaque blob.
+    """
+    lowered = url.lower()
+    return any(host in lowered for host in _GOOGLE_NEWS_HOSTS)
+
+
 def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
     """Best-effort extraction of the publisher's article URL from a feed entry.
 
@@ -99,10 +112,14 @@ def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
     the entry description. Other feeds may expose the same info via the
     `<source url>` element (feedparser surfaces it as `entry.source.href`).
 
-    Returns None if we can't find a plausible canonical URL.
+    Returns None if we can't find a plausible non-Google-News canonical URL.
+    Self-referential links back to news.google.com are explicitly rejected
+    (the May-1 dry run logged `publisher_domain: 'google.com'` for both
+    findings because the description contained a self-link before the real
+    publisher anchor).
     """
-    # 1. Try the embedded anchor in description / summary first - that's the
-    #    article link, not just the publisher homepage.
+    # 1. Try ALL anchors in description / summary - return the first one
+    #    that doesn't point back at Google News.
     for field in ("summary", "description", "content"):
         raw = entry.get(field)
         if isinstance(raw, list) and raw:
@@ -110,10 +127,9 @@ def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
             raw = raw[0].get("value", "") if isinstance(raw[0], dict) else str(raw[0])
         if not isinstance(raw, str) or not raw:
             continue
-        m = _FIRST_HREF_PATTERN.search(raw)
-        if m:
+        for m in _FIRST_HREF_PATTERN.finditer(raw):
             href = m.group(1).strip()
-            if href.startswith("http"):
+            if href.startswith("http") and not _is_google_news_url(href):
                 return href
 
     # 2. Fall back to <source url> if present. This is usually the publisher
@@ -121,7 +137,11 @@ def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
     source = entry.get("source")
     if isinstance(source, dict):
         href = source.get("href") or source.get("url")
-        if isinstance(href, str) and href.startswith("http"):
+        if (
+            isinstance(href, str)
+            and href.startswith("http")
+            and not _is_google_news_url(href)
+        ):
             return href
 
     return None

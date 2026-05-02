@@ -25,7 +25,7 @@ from clients.gemini import GeminiClient
 from schema.finding import Finding, FindingStatus
 from schema.finding_draft import FindingDraft
 from schema.raw_item import RawItem
-from util.competitor_registry import get_category
+from util.competitor_registry import get_category, get_related_products
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,29 @@ def _format_prompt(item: RawItem) -> str:
     )
 
 
+def _resolve_products(item: RawItem, draft: FindingDraft) -> list[str]:
+    """Return the products[] list for the Finding.
+
+    The Flash extract LLM is conservative and frequently returns an empty
+    list even when the article clearly belongs to a known Doceree-product
+    competitive bucket. When that happens, we backfill from the competitor's
+    `related_doceree_products` in competitors.yaml. This keeps:
+      - the BY DOCEREE PRODUCT digest section populated;
+      - synth_per_product paragraphs running for the right products;
+      - the severity-adversarial prompt grounded in which Doceree products
+        are actually exposed (Pro's reasoning quality depends on this).
+
+    If the LLM returned products explicitly, trust it (it had the article
+    text in context; we don't). Only backfill on empty.
+    """
+    if draft.products:
+        return draft.products
+    related = get_related_products(item.competitor)
+    # Cap at 3 to match the extract prompt's "0-3 entries" rule and to
+    # avoid one finding flooding the BY-PRODUCT section.
+    return related[:3]
+
+
 def _build_finding(item: RawItem, draft: FindingDraft) -> Finding:
     """Promote a (RawItem, FindingDraft) into a full Finding."""
     finding_id = item.content_hash[:32]  # 32 hex chars = 128 bits
@@ -62,7 +85,7 @@ def _build_finding(item: RawItem, draft: FindingDraft) -> Finding:
         summary=draft.summary,
         evidence_quote=draft.evidence_quote,
         signal_type=draft.signal_type,
-        products=draft.products,
+        products=_resolve_products(item, draft),
         raw_severity=draft.raw_severity,
         raw_confidence=draft.raw_confidence,
         # Mirror raw_confidence into the decomposed `extraction_confidence`
