@@ -40,6 +40,7 @@ def main() -> int:
     # src/schema/competitor.py.
     allowed_categories = {
         "agentic_clinical_ai",
+        "agentic_pharma_engagement",
         "healthcare_dsp",
         "healthcare_data_analytics",
         "hcp_marketing_platform",

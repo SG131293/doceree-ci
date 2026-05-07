@@ -27,6 +27,8 @@
 # `category` is the market grouping shown in the daily digest. Allowed values
 # are defined in src/schema/competitor.py::CompetitorCategory:
 #   agentic_clinical_ai          - clinical AI / scribe / agent platforms
+#   agentic_pharma_engagement    - AI agents for pharma GTM, HCP engagement,
+#                                  rep automation (RoseRx, Synthio, Aktana, etc.)
 #   healthcare_dsp               - DSPs (Healthcare or cross-vertical entering health)
 #   healthcare_data_analytics    - data + analytics + RWD vendors
 #   hcp_marketing_platform       - end-to-end HCP marketing (POC + media)
@@ -337,6 +339,109 @@ tier_2_mvp_cohort:
     region: Global cross-vertical
     notes: "Generic ABM benchmark; entry into healthcare would escalate priority."
 
+  # ----- Sprint 8 follow-up: RepTwin agentic-AI watchlist -----
+  # Sourced from docs/COMPETITION_BY_PRODUCT.md, which calls out RepTwin as
+  # needing a dedicated agentic-AI watchlist. These six are the agentic-pharma
+  # engagement layer that competes most directly with RepTwin's positioning.
+  - id: roserx
+    name: RoseRx
+    canonical_domain: roserx.ai
+    category: agentic_pharma_engagement
+    short_description: "AI-powered pharma HCP / patient engagement platform; direct RepTwin competitor."
+    rss_feeds: []
+    sitemaps:
+      - https://www.roserx.ai/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [reptwin, premium_programmatic, marketplace]
+    rep_priority: 4
+    region: US-primary
+    threat_level: high
+    needs_validation: true
+
+  - id: prescriberpoint
+    name: PrescriberPoint (PrescriberAI)
+    canonical_domain: prescriberpoint.com
+    category: agentic_pharma_engagement
+    aliases: ["Prescriber.AI", "PrescriberAI"]
+    short_description: "AI-powered point-of-care prescribing workflow platform; PrescriberAI for HCP messaging."
+    rss_feeds: []
+    sitemaps:
+      - https://prescriberpoint.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [reptwin, poc, spark_for_ehrs]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
+  - id: salesforce_agentforce
+    name: Salesforce Agentforce for Life Sciences
+    canonical_domain: salesforce.com
+    category: agentic_pharma_engagement
+    aliases: ["Agentforce", "Salesforce Agentforce", "Agentforce for Life Sciences"]
+    short_description: "CRM incumbent's agentic AI for life sciences commercial workflows; competes when Doceree positions RepTwin against Salesforce-native HCP engagement."
+    rss_feeds: []
+    sitemaps: []  # too broad to crawl whole salesforce.com; use targeted URLs in source-registry later
+    sec_cik: "0001108524"  # CRM
+    public_jobs_boards: []
+    related_doceree_products: [reptwin, marketplace, abm]
+    rep_priority: 4
+    region: Global
+    threat_level: high
+    needs_validation: true
+    notes: "Daily Google News query would be too noisy on `Salesforce` alone; prefer source-driven monitoring of the agentforce/life-sciences pages."
+
+  - id: veeva_ai
+    name: Veeva AI for Vault CRM
+    canonical_domain: veeva.com
+    category: agentic_pharma_engagement
+    aliases: ["Veeva AI", "Vault CRM AI", "Veeva Vault CRM AI"]
+    short_description: "Life-sciences CRM incumbent's AI overlay on Vault CRM; structural threat to RepTwin if Veeva ships rep-side agents."
+    rss_feeds: []
+    sitemaps: []  # use targeted product page URLs via source-registry
+    sec_cik: "0001393052"  # VEEV
+    public_jobs_boards: []
+    related_doceree_products: [reptwin, marketplace, abm]
+    rep_priority: 4
+    region: Global
+    threat_level: high
+    needs_validation: true
+
+  - id: aktana
+    name: Aktana / PharmaForceIQ
+    canonical_domain: pharmaforceiq.com
+    category: agentic_pharma_engagement
+    aliases: ["Aktana", "PharmaForceIQ"]
+    short_description: "Life-sciences commercial / medical AI orchestration; Aktana now under PharmaForceIQ."
+    rss_feeds: []
+    sitemaps:
+      - https://pharmaforceiq.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [reptwin, marketplace, next]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
+  - id: swoop
+    name: Swoop
+    canonical_domain: swoop.com
+    category: healthcare_data_analytics
+    short_description: "AI / data-powered healthcare omnichannel marketing and predictive HCP / patient audiences."
+    rss_feeds: []
+    sitemaps:
+      - https://swoop.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [marketplace, premium_programmatic, next]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+    needs_validation: true
+
 # ===== Healthcare AI agents cluster (per build plan) =====
 # Synthio Labs and Hippocratic AI are explicit in the master PRD.
 # The other 7 are AI-scribe / clinical-AI players added per the build plan
@@ -345,9 +450,9 @@ tier_2_mvp_cohort:
 healthcare_ai_cluster:
   - id: synthio_labs
     name: Synthio Labs
-    canonical_domain: null  # per master PRD: "Needs source discovery"
-    category: agentic_clinical_ai
-    short_description: "Pharma-specific AI; named in Doceree Onboarding Guide as a RepTwin competitor; limited public information."
+    canonical_domain: synthiolabs.com
+    category: agentic_pharma_engagement
+    short_description: "Agentic AI platform for pharma GTM, field, HCP and patient engagement agents. Direct RepTwin competitor."
     rss_feeds: []
     sitemaps: []
     sec_cik: null
@@ -480,6 +585,58 @@ healthcare_ai_cluster:
     related_doceree_products: [reptwin]
     rep_priority: 2
     region: US-primary
+    threat_level: low
+    needs_validation: true
+
+  # ----- Sprint 8 follow-up: long-tail RepTwin watchlist (services + concepts) -----
+  # These three are productized AI services / concept-stage entrants per
+  # docs/COMPETITION_BY_PRODUCT.md. They sit in healthcare_ai_cluster because
+  # they're small / emerging. Monitor for case studies, customer wins, and
+  # productization signals (i.e. moving from concept to shipped product).
+  - id: openhelix
+    name: Openhelix
+    canonical_domain: openhelix.co
+    category: agentic_pharma_engagement
+    short_description: "Healthcare / life-sciences AI-agent watchlist entrant; small but in the agentic-pharma layer."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 2
+    region: US-primary
+    threat_level: low
+    needs_validation: true
+
+  - id: mathco_repgpt
+    name: MathCo (RepGPT)
+    canonical_domain: mathco.com
+    category: agentic_pharma_engagement
+    aliases: ["RepGPT", "MathCo RepGPT"]
+    short_description: "RepGPT multi-agent pharma-sales-assistant concept; productized service from MathCo built on Databricks."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 2
+    region: Global
+    threat_level: low
+    needs_validation: true
+
+  - id: agilisium
+    name: Agilisium (Pharma Rep Copilot)
+    canonical_domain: agilisium.com
+    category: agentic_pharma_engagement
+    aliases: ["Agilisium Pharma Rep Copilot"]
+    short_description: "Productized services / content around AI agents for pharma HCP engagement; consultancy-led."
+    rss_feeds: []
+    sitemaps: []
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [reptwin]
+    rep_priority: 1
+    region: Global
     threat_level: low
     needs_validation: true
 

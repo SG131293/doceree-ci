@@ -41,6 +41,7 @@ class CompetitorCategory(StrEnum):
     """
 
     AGENTIC_CLINICAL_AI = "agentic_clinical_ai"
+    AGENTIC_PHARMA_ENGAGEMENT = "agentic_pharma_engagement"
     HEALTHCARE_DSP = "healthcare_dsp"
     HEALTHCARE_DATA_ANALYTICS = "healthcare_data_analytics"
     HCP_MARKETING_PLATFORM = "hcp_marketing_platform"
@@ -54,6 +55,7 @@ class CompetitorCategory(StrEnum):
 
 _CATEGORY_DISPLAY_NAMES: dict[CompetitorCategory, str] = {
     CompetitorCategory.AGENTIC_CLINICAL_AI: "Agentic Clinical AI",
+    CompetitorCategory.AGENTIC_PHARMA_ENGAGEMENT: "Agentic Pharma Engagement",
     CompetitorCategory.HEALTHCARE_DSP: "Healthcare DSP / Programmatic",
     CompetitorCategory.HEALTHCARE_DATA_ANALYTICS: "Healthcare Data & Analytics",
     CompetitorCategory.HCP_MARKETING_PLATFORM: "HCP Marketing Platform",
