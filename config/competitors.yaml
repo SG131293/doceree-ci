@@ -112,17 +112,22 @@ tier_1:
     rep_priority: 5
     region: Global
 
-  - id: lasso
-    name: Lasso (an IQVIA business)
+  # Per docs/COMPETITION_BY_PRODUCT.md "critical user correction": the active
+  # label is now `IQVIA Digital`, not `Lasso (an IQVIA business)`. Aliases
+  # to preserve for historical content matching: Lasso, Lasso Platform,
+  # Lasso Marketing, Lasso (an IQVIA business), IQVIA Lasso, lassoplatform.io.
+  - id: iqvia_digital
+    name: IQVIA Digital
     canonical_domain: iqviadigital.com
     category: healthcare_data_analytics
-    short_description: "Healthcare marketing OS; Blueprint self-service audience builder; AIM XR identity; IRI consumer-purchase data. Acquired by IQVIA Oct 2022."
+    aliases: [lasso, "Lasso Platform", "Lasso Marketing", "Lasso (an IQVIA business)", "IQVIA Lasso"]
+    short_description: "Active label replacing Lasso. Omnichannel healthcare marketing & analytics platform; Blueprint self-service audience builder; AIM XR identity; IRI consumer-purchase data; bundled with IQVIA data."
     rss_feeds: []
     sitemaps:
       - https://www.iqviadigital.com/sitemap.xml
     sec_cik: "0001478242"  # IQVIA parent
     public_jobs_boards: []  # parent (IQVIA) jobs board likely covers
-    related_doceree_products: [next, marketplace, premium_programmatic]
+    related_doceree_products: [next, marketplace, premium_programmatic, poc]
     rep_priority: 5
     region: US-primary
 

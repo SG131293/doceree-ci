@@ -68,25 +68,40 @@ class CompetitorFeed:
     source_type: SourceType = SourceType.NEWSROOM
 
 
-# Day-6 cohort. Google News RSS gives us reliable real data without depending
-# on competitor RSS endpoints that may not exist. The when:1d clause limits
-# to last 24h - matches the filter stage's staleness rule.
+# Daily cohort: all Tier-1 competitors per docs/COMPETITION_BY_PRODUCT.md,
+# polled via Google News RSS with `when:1d` to limit to last 24h. The
+# attribution check (T4a) filters out misattributed items.
+#
+# Why Google News (still): direct competitor newsroom RSS feeds don't exist
+# for most healthcare vendors; sitemap-based ingest lands in a future sprint.
+# Skipped from this cohort:
+#   - iqvia_digital   too generic; parent `iqvia` query already surfaces it
+#   - lasso (legacy)  renamed to iqvia_digital
+#   - veradigm        keeping disabled until we confirm signal:noise; can re-add
+#
+# Variable name kept as DAY6_FEEDS for git-blame continuity but is no longer
+# Day-6-specific.
+def _gnews_feed(query: str) -> str:
+    """Encode a Google News RSS URL for an exact-phrase competitor query
+    constrained to the last 24h."""
+    encoded = query.replace(" ", "+")
+    return (
+        f"https://news.google.com/rss/search?q=%22{encoded}%22+when:1d"
+        "&hl=en-US&gl=US&ceid=US:en"
+    )
+
+
 DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
-    CompetitorFeed(
-        competitor="deepintent",
-        name="DeepIntent",
-        feed_url="https://news.google.com/rss/search?q=%22DeepIntent%22+when:1d&hl=en-US&gl=US&ceid=US:en",
-    ),
-    CompetitorFeed(
-        competitor="optimizerx",
-        name="OptimizeRx",
-        feed_url="https://news.google.com/rss/search?q=%22OptimizeRx%22+when:1d&hl=en-US&gl=US&ceid=US:en",
-    ),
-    CompetitorFeed(
-        competitor="hippocratic_ai",
-        name="Hippocratic AI",
-        feed_url="https://news.google.com/rss/search?q=%22Hippocratic+AI%22+when:1d&hl=en-US&gl=US&ceid=US:en",
-    ),
+    CompetitorFeed(competitor="deepintent",   name="DeepIntent",     feed_url=_gnews_feed("DeepIntent")),
+    CompetitorFeed(competitor="optimizerx",   name="OptimizeRx",     feed_url=_gnews_feed("OptimizeRx")),
+    CompetitorFeed(competitor="hippocratic_ai", name="Hippocratic AI", feed_url=_gnews_feed("Hippocratic AI")),
+    CompetitorFeed(competitor="pulsepoint",   name="PulsePoint",     feed_url=_gnews_feed("PulsePoint")),
+    CompetitorFeed(competitor="iqvia",        name="IQVIA",          feed_url=_gnews_feed("IQVIA")),
+    CompetitorFeed(competitor="covermymeds",  name="CoverMyMeds",    feed_url=_gnews_feed("CoverMyMeds")),
+    CompetitorFeed(competitor="connectiverx", name="ConnectiveRx",   feed_url=_gnews_feed("ConnectiveRx")),
+    CompetitorFeed(competitor="doximity",     name="Doximity",       feed_url=_gnews_feed("Doximity")),
+    CompetitorFeed(competitor="medscape",     name="Medscape",       feed_url=_gnews_feed("Medscape")),
+    CompetitorFeed(competitor="openevidence", name="OpenEvidence",   feed_url=_gnews_feed("OpenEvidence")),
 )
 
 

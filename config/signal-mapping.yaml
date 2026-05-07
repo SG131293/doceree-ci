@@ -136,7 +136,7 @@ rules:
   - id: rule_010
     description: "HCP audience / data product launches -> Marketplace + NEXT."
     if:
-      competitor: [iqvia, komodo_health, definitive_healthcare, lasso, swoop]
+      competitor: [iqvia, komodo_health, definitive_healthcare, iqvia_digital, swoop]
       source_type: [press_release, newsroom, product_page]
       body_contains: ["onekey", "data marketplace", "healthcare map", "marmot", "view suite", "monocl", "audience builder", "blueprint", "aim xr", "live ehr"]
     map_to_products: [marketplace, next]

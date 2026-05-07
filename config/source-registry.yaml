@@ -145,7 +145,7 @@ sources:
     priority: 1
     frequency: daily
     collection_method: sitemap
-    why: "AWS-AI collaboration; AI Assistant; Lasso updates."
+    why: "AWS-AI collaboration; AI Assistant; IQVIA Digital (formerly Lasso) updates."
 
   - rank: 14
     competitor: iqvia
@@ -156,9 +156,9 @@ sources:
     collection_method: crawler
     why: "Hiring signals (capability investment)."
 
-  # ===== Lasso (an IQVIA business) (2) =====
+  # ===== IQVIA Digital (formerly Lasso) (2) =====
   - rank: 15
-    competitor: lasso
+    competitor: iqvia_digital
     url: https://www.iqviadigital.com/
     source_type: homepage
     priority: 1
@@ -167,13 +167,13 @@ sources:
     why: "NEXT anchor."
 
   - rank: 16
-    competitor: lasso
+    competitor: iqvia_digital
     url: https://www.iqviadigital.com/
     source_type: product_page
     priority: 1
     frequency: daily
     collection_method: crawler
-    why: "Post-acquisition Lasso product content (same domain)."
+    why: "Post-acquisition IQVIA Digital product content (same domain; formerly Lasso)."
 
   # ===== Veradigm (4) =====
   - rank: 17

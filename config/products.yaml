@@ -62,7 +62,7 @@ products:
       - nft marketplace
       - real-estate marketplace
     competitors_primary: [iqvia, komodo_health, definitive_healthcare]
-    competitors_adjacent: [swoop, deepintent, pulsepoint, lasso]
+    competitors_adjacent: [swoop, deepintent, pulsepoint, iqvia_digital]
 
   - id: abm
     name: ABM
@@ -129,7 +129,7 @@ products:
       - gaming programmatic
       - ctv programmatic
     competitors_primary: [deepintent, pulsepoint, swoop, trade_desk, stackadapt]
-    competitors_adjacent: [iqvia, lasso]
+    competitors_adjacent: [iqvia, iqvia_digital]
 
   - id: reptwin
     name: RepTwin
@@ -229,7 +229,7 @@ products:
     negative_keywords:
       - retail omnichannel
       - cpg orchestration
-    competitors_primary: [lasso, deepintent, iqvia]
+    competitors_primary: [iqvia_digital, deepintent, iqvia]
     competitors_adjacent: [pulsepoint, optimizerx, relevate_health, swoop, trade_desk, stackadapt]
 
   - id: copay_com
