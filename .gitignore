@@ -26,6 +26,7 @@ client_secret*.json
 token.json
 *.token
 *_refresh_token*
+.gmail_token.json
 
 # Test / lint caches
 .pytest_cache/
