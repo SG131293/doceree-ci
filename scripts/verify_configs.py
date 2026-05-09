@@ -38,6 +38,8 @@ def main() -> int:
     # Sprint 8: every competitor must declare a market `category` from the
     # CompetitorCategory enum. Keep this list in sync with
     # src/schema/competitor.py.
+    allowed_monitoring_tiers = {"direct", "adjacent", "watchlist"}
+
     allowed_categories = {
         "agentic_clinical_ai",
         "agentic_pharma_engagement",
@@ -74,7 +76,7 @@ def main() -> int:
             if p not in product_ids:
                 errors.append(f"competitors.yaml [{c['id']}].related_doceree_products: '{p}' not in products.yaml")
 
-    # competitors.yaml: every competitor must have a valid `category`.
+    # competitors.yaml: every competitor must have a valid `category` and `monitoring_tier`.
     for c in all_competitors:
         cat = c.get("category")
         if cat is None:
@@ -83,6 +85,14 @@ def main() -> int:
             errors.append(
                 f"competitors.yaml [{c['id']}]: category '{cat}' not in allowed set "
                 f"{sorted(allowed_categories)}"
+            )
+        tier = c.get("monitoring_tier")
+        if tier is None:
+            errors.append(f"competitors.yaml [{c['id']}]: missing required field 'monitoring_tier'")
+        elif tier not in allowed_monitoring_tiers:
+            errors.append(
+                f"competitors.yaml [{c['id']}]: monitoring_tier '{tier}' not in "
+                f"{sorted(allowed_monitoring_tiers)}"
             )
 
     # source-registry.yaml -> competitors.yaml: competitor refs

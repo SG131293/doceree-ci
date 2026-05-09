@@ -68,19 +68,13 @@ class CompetitorFeed:
     source_type: SourceType = SourceType.NEWSROOM
 
 
-# Daily cohort: all Tier-1 competitors per docs/COMPETITION_BY_PRODUCT.md,
-# polled via Google News RSS with `when:1d` to limit to last 24h. The
-# attribution check (T4a) filters out misattributed items.
+# Daily cohort: all competitors with monitoring_tier: direct from
+# config/competitors.yaml, per docs/COMPETITION_BY_PRODUCT.md "High / Direct"
+# product matrix. Polled via Google News RSS with `when:1d`.
+# Attribution check (T4a) filters misattributed items.
 #
 # Why Google News (still): direct competitor newsroom RSS feeds don't exist
 # for most healthcare vendors; sitemap-based ingest lands in a future sprint.
-# Skipped from this cohort:
-#   - iqvia_digital   too generic; parent `iqvia` query already surfaces it
-#   - lasso (legacy)  renamed to iqvia_digital
-#   - veradigm        keeping disabled until we confirm signal:noise; can re-add
-#
-# Variable name kept as DAY6_FEEDS for git-blame continuity but is no longer
-# Day-6-specific.
 def _gnews_feed(query: str) -> str:
     """Encode a Google News RSS URL for an exact-phrase competitor query
     constrained to the last 24h."""
@@ -91,17 +85,53 @@ def _gnews_feed(query: str) -> str:
     )
 
 
+# Daily cohort = all competitors with monitoring_tier: direct in competitors.yaml
+# (per docs/COMPETITION_BY_PRODUCT.md "High / Direct" matrix). Variable name
+# kept as DAY6_FEEDS for git-blame continuity.
+#
+# Notes on specific entries:
+#   iqvia_digital  - query "IQVIA Digital" (formerly Lasso); distinct from "IQVIA"
+#   synthio_labs   - small startup; low daily signal volume expected
+#   roserx         - agentic pharma; low signal volume expected
+#   google_ad_manager - infrastructure benchmark; search "Google Ad Manager"
+#   relayhealth_change - search "Change Healthcare" (most news-visible name post-
+#                        UnitedHealth acquisition)
+#   relevate_health - "Relevate Health" search; confirms EHR campaign signals
+#   checkedup      - small DOOH network; monitor for partnerships / POC wins
 DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
-    CompetitorFeed(competitor="deepintent",   name="DeepIntent",     feed_url=_gnews_feed("DeepIntent")),
-    CompetitorFeed(competitor="optimizerx",   name="OptimizeRx",     feed_url=_gnews_feed("OptimizeRx")),
-    CompetitorFeed(competitor="hippocratic_ai", name="Hippocratic AI", feed_url=_gnews_feed("Hippocratic AI")),
-    CompetitorFeed(competitor="pulsepoint",   name="PulsePoint",     feed_url=_gnews_feed("PulsePoint")),
-    CompetitorFeed(competitor="iqvia",        name="IQVIA",          feed_url=_gnews_feed("IQVIA")),
-    CompetitorFeed(competitor="covermymeds",  name="CoverMyMeds",    feed_url=_gnews_feed("CoverMyMeds")),
-    CompetitorFeed(competitor="connectiverx", name="ConnectiveRx",   feed_url=_gnews_feed("ConnectiveRx")),
-    CompetitorFeed(competitor="doximity",     name="Doximity",       feed_url=_gnews_feed("Doximity")),
-    CompetitorFeed(competitor="medscape",     name="Medscape",       feed_url=_gnews_feed("Medscape")),
-    CompetitorFeed(competitor="openevidence", name="OpenEvidence",   feed_url=_gnews_feed("OpenEvidence")),
+    # Healthcare DSP / Programmatic
+    CompetitorFeed(competitor="deepintent",        name="DeepIntent",        feed_url=_gnews_feed("DeepIntent")),
+    CompetitorFeed(competitor="pulsepoint",        name="PulsePoint",        feed_url=_gnews_feed("PulsePoint")),
+    CompetitorFeed(competitor="stackadapt",        name="StackAdapt",        feed_url=_gnews_feed("StackAdapt")),
+    CompetitorFeed(competitor="trade_desk",        name="The Trade Desk",    feed_url=_gnews_feed("The Trade Desk")),
+    CompetitorFeed(competitor="swoop",             name="Swoop",             feed_url=_gnews_feed("Swoop healthcare")),
+    # Healthcare Data & Analytics
+    CompetitorFeed(competitor="iqvia",             name="IQVIA",             feed_url=_gnews_feed("IQVIA")),
+    CompetitorFeed(competitor="iqvia_digital",     name="IQVIA Digital",     feed_url=_gnews_feed("IQVIA Digital")),
+    CompetitorFeed(competitor="komodo_health",     name="Komodo Health",     feed_url=_gnews_feed("Komodo Health")),
+    CompetitorFeed(competitor="definitive_healthcare", name="Definitive Healthcare", feed_url=_gnews_feed("Definitive Healthcare")),
+    # HCP Marketing Platform / POC / EHR
+    CompetitorFeed(competitor="optimizerx",        name="OptimizeRx",        feed_url=_gnews_feed("OptimizeRx")),
+    CompetitorFeed(competitor="veradigm",          name="Veradigm",          feed_url=_gnews_feed("Veradigm")),
+    CompetitorFeed(competitor="relevate_health",   name="Relevate Health",   feed_url=_gnews_feed("Relevate Health")),
+    # HCP Publisher / Destination
+    CompetitorFeed(competitor="doximity",          name="Doximity",          feed_url=_gnews_feed("Doximity")),
+    CompetitorFeed(competitor="medscape",          name="Medscape",          feed_url=_gnews_feed("Medscape")),
+    CompetitorFeed(competitor="openevidence",      name="OpenEvidence",      feed_url=_gnews_feed("OpenEvidence")),
+    # Patient Access / Coupon
+    CompetitorFeed(competitor="covermymeds",       name="CoverMyMeds",       feed_url=_gnews_feed("CoverMyMeds")),
+    CompetitorFeed(competitor="connectiverx",      name="ConnectiveRx",      feed_url=_gnews_feed("ConnectiveRx")),
+    CompetitorFeed(competitor="relayhealth_change", name="Change Healthcare", feed_url=_gnews_feed("Change Healthcare")),
+    # Pharmacy Software / POD
+    CompetitorFeed(competitor="redsail_technologies", name="RedSail Technologies", feed_url=_gnews_feed("RedSail Technologies")),
+    # DOOH / Point-of-Care
+    CompetitorFeed(competitor="patientpoint",      name="PatientPoint",      feed_url=_gnews_feed("PatientPoint")),
+    CompetitorFeed(competitor="checkedup",         name="CheckedUp",         feed_url=_gnews_feed("CheckedUp healthcare")),
+    # Admanager benchmark
+    CompetitorFeed(competitor="google_ad_manager", name="Google Ad Manager", feed_url=_gnews_feed("Google Ad Manager")),
+    # Agentic Pharma Engagement (RepTwin direct)
+    CompetitorFeed(competitor="roserx",            name="RoseRx",            feed_url=_gnews_feed("RoseRx")),
+    CompetitorFeed(competitor="synthio_labs",      name="Synthio Labs",      feed_url=_gnews_feed("Synthio Labs")),
 )
 
 

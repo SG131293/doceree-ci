@@ -107,6 +107,27 @@ def get_related_products(competitor_id: str) -> list[str]:
     return list(products) if isinstance(products, list) else []
 
 
+def get_monitoring_tier(competitor_id: str) -> str | None:
+    """Return 'direct', 'adjacent', or 'watchlist' for `competitor_id`.
+
+    Returns None if the competitor is unknown or has no monitoring_tier set.
+    """
+    rec = get_competitor(competitor_id)
+    if rec is None:
+        return None
+    tier = rec.get("monitoring_tier")
+    return tier if isinstance(tier, str) else None
+
+
+def get_direct_competitor_ids() -> list[str]:
+    """Return all competitor IDs with monitoring_tier == 'direct'."""
+    return [
+        cid
+        for cid, rec in _ensure_loaded().items()
+        if rec.get("monitoring_tier") == "direct"
+    ]
+
+
 def all_competitor_ids() -> list[str]:
     """Return all known competitor IDs across all tiers."""
     return list(_ensure_loaded().keys())

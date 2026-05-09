@@ -47,6 +47,7 @@ tier_1:
     name: OptimizeRx
     canonical_domain: optimizerx.com
     category: hcp_marketing_platform
+    monitoring_tier: direct
     short_description: "Public POC competitor; 300+ EHR/ePrescribe partners; DAAP platform; Micro-Neighborhood Targeting."
     rss_feeds: []
     sitemaps:
@@ -61,6 +62,7 @@ tier_1:
     name: Veradigm
     canonical_domain: veradigm.com
     category: ehr_workflow
+    monitoring_tier: direct
     short_description: "EHR ad media (formerly Allscripts); POCMA-certified; owns its own EHR ecosystem."
     rss_feeds: []
     sitemaps:
@@ -75,6 +77,7 @@ tier_1:
     name: DeepIntent
     canonical_domain: deepintent.com
     category: healthcare_dsp
+    monitoring_tier: direct
     short_description: "Healthcare DSP; Cortex AI media buying; Helix HIPAA-ready cloud; $637M Vitruvian investment Sep 2025."
     rss_feeds: []
     sitemaps:
@@ -89,6 +92,7 @@ tier_1:
     name: PulsePoint
     canonical_domain: pulsepoint.com
     category: healthcare_dsp
+    monitoring_tier: direct
     short_description: "Healthcare programmatic; HCP365 NPI measurement; Authenticated NPI with Medscape; Internet Brands/WebMD parent."
     rss_feeds: []
     sitemaps:
@@ -103,6 +107,7 @@ tier_1:
     name: IQVIA
     canonical_domain: iqvia.com
     category: healthcare_data_analytics
+    monitoring_tier: direct
     short_description: "Global life-sciences data + analytics + tech. NPA, OneKey, Data Marketplace, AI Assistant; AWS strategic AI collaboration."
     rss_feeds: []
     sitemaps:
@@ -122,6 +127,7 @@ tier_1:
     name: IQVIA Digital
     canonical_domain: iqviadigital.com
     category: healthcare_data_analytics
+    monitoring_tier: direct
     aliases: [lasso, "Lasso Platform", "Lasso Marketing", "Lasso (an IQVIA business)", "IQVIA Lasso"]
     short_description: "Active label replacing Lasso. Omnichannel healthcare marketing & analytics platform; Blueprint self-service audience builder; AIM XR identity; IRI consumer-purchase data; bundled with IQVIA data."
     rss_feeds: []
@@ -137,6 +143,7 @@ tier_1:
     name: CoverMyMeds (McKesson)
     canonical_domain: covermymeds.com
     category: patient_access_coupon
+    monitoring_tier: direct
     short_description: "PA platform integrating with EHRs and pharmacies; serves manufacturers, providers, pharmacies."
     rss_feeds: []
     sitemaps:
@@ -151,6 +158,7 @@ tier_1:
     name: ConnectiveRx
     canonical_domain: connectiverx.com
     category: patient_access_coupon
+    monitoring_tier: direct
     short_description: "Co-pay assistance, hub services, branded co-pay coupons distributed via PoC, e-prescribing, and pharmacy channels. 1.2M+ providers via PoC network."
     rss_feeds: []
     sitemaps:
@@ -165,6 +173,7 @@ tier_1:
     name: Doximity
     canonical_domain: doximity.com
     category: hcp_publisher_destination
+    monitoring_tier: direct
     short_description: "Largest US digital network of medical professionals (~80% of US physicians); DocsGPT AI; pharma marketing solutions."
     rss_feeds: []
     sitemaps:
@@ -179,6 +188,7 @@ tier_1:
     name: Medscape (WebMD Health)
     canonical_domain: medscape.com
     category: hcp_publisher_destination
+    monitoring_tier: direct
     short_description: "Online HCP destination; Medscape Extend; Authenticated NPI data partner to PulsePoint."
     rss_feeds: []
     sitemaps:
@@ -193,6 +203,7 @@ tier_1:
     name: OpenEvidence
     canonical_domain: openevidence.com
     category: hcp_publisher_destination
+    monitoring_tier: direct
     short_description: "AI clinical-decision-support platform; AMA, NEJM, Mayo Clinic, Wiley partnerships; $250M raise Jan 2026; DeepConsult agentic AI."
     rss_feeds: []
     sitemaps:
@@ -212,6 +223,7 @@ tier_2_mvp_cohort:
     name: Komodo Health
     canonical_domain: komodohealth.com
     category: healthcare_data_analytics
+    monitoring_tier: direct
     short_description: "Healthcare data; Real-World Data; Healthcare Map ~325M+ patients; Marmot AI; distributed via Snowflake Marketplace."
     rss_feeds: []
     sitemaps:
@@ -227,6 +239,7 @@ tier_2_mvp_cohort:
     name: Definitive Healthcare
     canonical_domain: definitivehc.com
     category: healthcare_data_analytics
+    monitoring_tier: direct
     short_description: "Healthcare commercial intelligence; Monocl Expert; Carevoyance; Populi. Public company. Also a Doceree ABM partner — dual relationship."
     rss_feeds: []
     sitemaps:
@@ -242,6 +255,7 @@ tier_2_mvp_cohort:
     name: The Trade Desk
     canonical_domain: thetradedesk.com
     category: healthcare_dsp
+    monitoring_tier: direct
     short_description: "Independent omnichannel DSP; OpenPath; HCP endemic pharma marketplace launched 2025."
     rss_feeds: []
     sitemaps:
@@ -257,6 +271,7 @@ tier_2_mvp_cohort:
     name: StackAdapt
     canonical_domain: stackadapt.com
     category: healthcare_dsp
+    monitoring_tier: direct
     short_description: "AI-powered programmatic across native, display, CTV, video, audio, in-game, DOOH, email. Healthcare suite — NPI Targeting, Script Lift, EHR Inventory."
     rss_feeds: []
     sitemaps:
@@ -271,6 +286,7 @@ tier_2_mvp_cohort:
     name: RedSail Technologies
     canonical_domain: redsailtechnologies.com
     category: pharmacy_software
+    monitoring_tier: direct
     short_description: "Pharmacy software (PMS) — owns PioneerRx, QS/1, BestRx, PrimeCare. ~12,000 independent pharmacies through PioneerRx."
     rss_feeds: []
     sitemaps:
@@ -285,6 +301,7 @@ tier_2_mvp_cohort:
     name: PatientPoint
     canonical_domain: patientpoint.com
     category: dooh_poc_network
+    monitoring_tier: direct
     short_description: "Owned point-of-care DOOH network; ~35,000 physician offices; PatientPoint Health Audiences (programmatic)."
     rss_feeds: []
     sitemaps:
@@ -299,6 +316,7 @@ tier_2_mvp_cohort:
     name: Vistar Media
     canonical_domain: vistarmedia.com
     category: dooh_poc_network
+    monitoring_tier: adjacent
     short_description: "Cross-vertical programmatic DOOH platform — DSP, SSP, ad-server."
     rss_feeds: []
     sitemaps:
@@ -313,6 +331,7 @@ tier_2_mvp_cohort:
     name: GoodRx
     canonical_domain: goodrx.com
     category: patient_access_coupon
+    monitoring_tier: adjacent
     short_description: "Consumer prescription savings marketplace; recent expanded access deals with manufacturers (Wegovy HD; Lilly's Foundayo)."
     rss_feeds: []
     sitemaps:
@@ -328,6 +347,7 @@ tier_2_mvp_cohort:
     name: Demandbase
     canonical_domain: demandbase.com
     category: b2b_abm
+    monitoring_tier: adjacent
     short_description: "Generic B2B ABM platform — Demandbase One ABX. 150M+ contacts, 99M+ companies."
     rss_feeds: []
     sitemaps:
@@ -339,6 +359,70 @@ tier_2_mvp_cohort:
     region: Global cross-vertical
     notes: "Generic ABM benchmark; entry into healthcare would escalate priority."
 
+  # ----- Sprint 8 follow-up: 4 direct competitors from COMPETITION_BY_PRODUCT.md -----
+  # These appear as High/Direct in the product matrix but were absent from the
+  # original v1 cohort.
+  - id: relevate_health
+    name: Relevate Health
+    canonical_domain: relevatehealth.com
+    category: hcp_marketing_platform
+    monitoring_tier: direct
+    short_description: "HCP omnichannel campaigns with EHR workflow-triggered messaging; Level Ex educational games; direct competitor for POC and Spark for EHRs."
+    rss_feeds: []
+    sitemaps:
+      - https://www.relevatehealth.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [poc, spark_for_ehrs, next, copay_com_health_systems]
+    rep_priority: 4
+    region: US-primary
+
+  - id: checkedup
+    name: CheckedUp
+    canonical_domain: checkedup.com
+    category: dooh_poc_network
+    monitoring_tier: direct
+    short_description: "Point-of-care digital screen network and patient engagement platform; direct competitor for Spark for DOOH."
+    rss_feeds: []
+    sitemaps:
+      - https://www.checkedup.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [spark_for_dooh, poc]
+    rep_priority: 3
+    region: US-primary
+
+  - id: google_ad_manager
+    name: Google Ad Manager
+    canonical_domain: admanager.google.com
+    category: hcp_publisher_destination
+    monitoring_tier: direct
+    short_description: "Google's publisher ad management platform; primary benchmark for Doceree Admanager product."
+    rss_feeds: []
+    sitemaps: []  # too broad; monitor via targeted Google News queries
+    sec_cik: "0001652044"  # Alphabet
+    public_jobs_boards: []
+    related_doceree_products: [admanager]
+    rep_priority: 3
+    region: Global
+    notes: "Infrastructure benchmark, not direct sales competitor; monitor for publisher-side feature changes."
+
+  - id: relayhealth_change
+    name: Change Healthcare / Optum Insight
+    canonical_domain: changehealthcare.com
+    category: patient_access_coupon
+    monitoring_tier: direct
+    aliases: ["RelayHealth", "Change Healthcare", "Optum Insight", "Optum Rx"]
+    short_description: "Pharmacy workflow, claims, e-prescribing, and patient-access infrastructure; direct competitor for Spark for Pharmacy via RelayHealth legacy network."
+    rss_feeds: []
+    sitemaps:
+      - https://www.changehealthcare.com/sitemap.xml
+    sec_cik: "0000072971"  # UnitedHealth Group parent
+    public_jobs_boards: []
+    related_doceree_products: [spark_for_pharmacy, pod, copay_com]
+    rep_priority: 4
+    region: US-primary
+
   # ----- Sprint 8 follow-up: RepTwin agentic-AI watchlist -----
   # Sourced from docs/COMPETITION_BY_PRODUCT.md, which calls out RepTwin as
   # needing a dedicated agentic-AI watchlist. These six are the agentic-pharma
@@ -347,6 +431,7 @@ tier_2_mvp_cohort:
     name: RoseRx
     canonical_domain: roserx.ai
     category: agentic_pharma_engagement
+    monitoring_tier: direct
     short_description: "AI-powered pharma HCP / patient engagement platform; direct RepTwin competitor."
     rss_feeds: []
     sitemaps:
@@ -363,6 +448,7 @@ tier_2_mvp_cohort:
     name: PrescriberPoint (PrescriberAI)
     canonical_domain: prescriberpoint.com
     category: agentic_pharma_engagement
+    monitoring_tier: adjacent
     aliases: ["Prescriber.AI", "PrescriberAI"]
     short_description: "AI-powered point-of-care prescribing workflow platform; PrescriberAI for HCP messaging."
     rss_feeds: []
@@ -380,6 +466,7 @@ tier_2_mvp_cohort:
     name: Salesforce Agentforce for Life Sciences
     canonical_domain: salesforce.com
     category: agentic_pharma_engagement
+    monitoring_tier: adjacent
     aliases: ["Agentforce", "Salesforce Agentforce", "Agentforce for Life Sciences"]
     short_description: "CRM incumbent's agentic AI for life sciences commercial workflows; competes when Doceree positions RepTwin against Salesforce-native HCP engagement."
     rss_feeds: []
@@ -397,6 +484,7 @@ tier_2_mvp_cohort:
     name: Veeva AI for Vault CRM
     canonical_domain: veeva.com
     category: agentic_pharma_engagement
+    monitoring_tier: adjacent
     aliases: ["Veeva AI", "Vault CRM AI", "Veeva Vault CRM AI"]
     short_description: "Life-sciences CRM incumbent's AI overlay on Vault CRM; structural threat to RepTwin if Veeva ships rep-side agents."
     rss_feeds: []
@@ -413,6 +501,7 @@ tier_2_mvp_cohort:
     name: Aktana / PharmaForceIQ
     canonical_domain: pharmaforceiq.com
     category: agentic_pharma_engagement
+    monitoring_tier: adjacent
     aliases: ["Aktana", "PharmaForceIQ"]
     short_description: "Life-sciences commercial / medical AI orchestration; Aktana now under PharmaForceIQ."
     rss_feeds: []
@@ -430,6 +519,7 @@ tier_2_mvp_cohort:
     name: Swoop
     canonical_domain: swoop.com
     category: healthcare_data_analytics
+    monitoring_tier: direct
     short_description: "AI / data-powered healthcare omnichannel marketing and predictive HCP / patient audiences."
     rss_feeds: []
     sitemaps:
@@ -452,6 +542,7 @@ healthcare_ai_cluster:
     name: Synthio Labs
     canonical_domain: synthiolabs.com
     category: agentic_pharma_engagement
+    monitoring_tier: direct
     short_description: "Agentic AI platform for pharma GTM, field, HCP and patient engagement agents. Direct RepTwin competitor."
     rss_feeds: []
     sitemaps: []
@@ -468,6 +559,7 @@ healthcare_ai_cluster:
     name: Hippocratic AI
     canonical_domain: hippocraticai.com
     category: agentic_clinical_ai
+    monitoring_tier: adjacent
     short_description: "Safety-focused healthcare LLMs; Constellation Architecture; 1.8M+ patient calls; 50+ partners; $404M raised."
     rss_feeds: []
     sitemaps:
@@ -483,6 +575,7 @@ healthcare_ai_cluster:
     name: Glass Health
     canonical_domain: glass.health
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "AI-powered clinical decision-support and differential-diagnosis platform; HCP-facing."
     rss_feeds: []
     sitemaps: []
@@ -498,6 +591,7 @@ healthcare_ai_cluster:
     name: Suki AI
     canonical_domain: suki.ai
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "AI voice assistant for clinical documentation; ambient scribe; partnerships with Epic, Athena, MEDITECH."
     rss_feeds: []
     sitemaps:
@@ -514,6 +608,7 @@ healthcare_ai_cluster:
     name: Abridge
     canonical_domain: abridge.com
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "Generative-AI ambient clinical documentation; Epic partnership; large enterprise deployments."
     rss_feeds: []
     sitemaps:
@@ -530,6 +625,7 @@ healthcare_ai_cluster:
     name: Nabla
     canonical_domain: nabla.com
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "AI ambient assistant for clinicians; multi-language; EHR integrations."
     rss_feeds: []
     sitemaps:
@@ -546,6 +642,7 @@ healthcare_ai_cluster:
     name: Ambience Healthcare
     canonical_domain: ambiencehealthcare.com
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "AI ambient documentation and CDI/coding; large health-system deployments."
     rss_feeds: []
     sitemaps: []
@@ -561,6 +658,7 @@ healthcare_ai_cluster:
     name: DeepScribe
     canonical_domain: deepscribe.ai
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "AI medical scribe; multi-specialty ambient clinical documentation."
     rss_feeds: []
     sitemaps:
@@ -577,6 +675,7 @@ healthcare_ai_cluster:
     name: Curai Health
     canonical_domain: curaihealth.com
     category: agentic_clinical_ai
+    monitoring_tier: watchlist
     short_description: "AI-powered virtual care platform; clinical AI for primary care."
     rss_feeds: []
     sitemaps: []
@@ -597,6 +696,7 @@ healthcare_ai_cluster:
     name: Openhelix
     canonical_domain: openhelix.co
     category: agentic_pharma_engagement
+    monitoring_tier: watchlist
     short_description: "Healthcare / life-sciences AI-agent watchlist entrant; small but in the agentic-pharma layer."
     rss_feeds: []
     sitemaps: []
@@ -612,6 +712,7 @@ healthcare_ai_cluster:
     name: MathCo (RepGPT)
     canonical_domain: mathco.com
     category: agentic_pharma_engagement
+    monitoring_tier: watchlist
     aliases: ["RepGPT", "MathCo RepGPT"]
     short_description: "RepGPT multi-agent pharma-sales-assistant concept; productized service from MathCo built on Databricks."
     rss_feeds: []
@@ -628,6 +729,7 @@ healthcare_ai_cluster:
     name: Agilisium (Pharma Rep Copilot)
     canonical_domain: agilisium.com
     category: agentic_pharma_engagement
+    monitoring_tier: watchlist
     aliases: ["Agilisium Pharma Rep Copilot"]
     short_description: "Productized services / content around AI agents for pharma HCP engagement; consultancy-led."
     rss_feeds: []
