@@ -1,34 +1,12 @@
-"""Plaintext digest renderer.
+"""Digest renderer — plaintext + HTML.
 
-Sprint 8 rewrites the renderer to match the structure Sherry asked for:
+Sprint 8 layout:
+    Header stats → TOP MOVES (sev-4+) → BY DOCEREE PRODUCT → BY COMPETITOR
+    CATEGORY → STRATEGIC SYNTHESIS → WATCHLIST (sev 1-2)
 
-    Doceree CI Daily Digest - YYYY-MM-DD
-    N findings · X sev-4+ · Y products impacted · Z categories
-
-    === TODAY'S TOP MOVES (sev-4+) ===
-    Full detail per finding (title, severity, category, impacts, summary,
-    evidence quote, publisher source).
-
-    === BY DOCEREE PRODUCT ===
-    One block per product touched today. Includes the per_product synthesis
-    paragraph + recommended action when available.
-
-    === BY COMPETITOR CATEGORY ===
-    One block per category. Bullet list of finding titles grouped by
-    competitor within the category.
-
-    === STRATEGIC SYNTHESIS ===
-    The cross-product narrative + implied agenda from synth_strategic.
-
-    === WATCHLIST (sev 1-2) ===
-    Compact bullet list of low-severity findings the renderer didn't surface
-    in the top section.
-
-The renderer accepts optional `per_product` and `strategic` synthesis
-inputs. When omitted (e.g., in a degraded run where Pro synthesis failed),
-the relevant sections are skipped without breaking the digest.
-
-Day 11 will add the matching HTML template; for now, plaintext only.
+render_plaintext() — for artifact files and --dry-run stdout.
+render_html()      — for Gmail send; styled HTML email.
+render_subject()   — email subject line.
 """
 from __future__ import annotations
 
@@ -314,6 +292,331 @@ def render_plaintext(
         product_label=_product_label,
         category_label=_category_label,
         publisher_or_url=_publisher_or_url,
+    )
+
+
+# ---------------------------------------------------------------------------
+# HTML renderer
+# ---------------------------------------------------------------------------
+
+def _sev_border(sev: int) -> str:
+    return {5: "#dc2626", 4: "#ea580c", 3: "#d97706", 2: "#3b82f6", 1: "#d1d5db"}.get(sev, "#d1d5db")
+
+
+def _sev_bg(sev: int) -> str:
+    return {5: "#fef2f2", 4: "#fff7ed", 3: "#fffbeb", 2: "#eff6ff", 1: "#f9fafb"}.get(sev, "#f9fafb")
+
+
+def _sev_badge(sev: int) -> str:
+    bg = {5: "#dc2626", 4: "#ea580c", 3: "#d97706", 2: "#2563eb", 1: "#94a3b8"}.get(sev, "#94a3b8")
+    return (
+        f'<span style="display:inline-block;background:{bg};color:#fff;'
+        f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;'
+        f'letter-spacing:0.5px;">SEV&nbsp;{sev}</span>'
+    )
+
+
+_HTML_TEMPLATE = """\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Doceree CI — {{ run_date }}</title>
+</head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0f172a;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef2f7;">
+<tr><td style="padding:28px 12px;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:660px;margin:0 auto;">
+
+  <!-- ═══ HEADER ═══════════════════════════════════════════════ -->
+  <tr>
+  <td style="background:#0f1f4b;border-radius:12px 12px 0 0;padding:32px 36px 28px;">
+    <div style="color:#93b3e6;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">DOCEREE CI · DAILY COMPETITOR DIGEST</div>
+    <div style="color:#ffffff;font-size:24px;font-weight:800;line-height:1.2;">Competitor Intelligence</div>
+    <div style="color:#93b3e6;font-size:13px;margin-top:6px;">{{ run_date }} &nbsp;·&nbsp; Generated {{ generated_at_ist }} IST</div>
+
+    <!-- Stat pills -->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;">
+    <tr>
+      <td style="background:rgba(255,255,255,0.10);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="color:#ffffff;font-size:24px;font-weight:800;line-height:1;">{{ findings|length }}</div>
+        <div style="color:#93b3e6;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:3px;">Findings</div>
+      </td>
+      <td width="10"></td>
+      <td style="background:rgba(255,255,255,0.10);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="color:{% if n_sev4plus > 0 %}#fca5a5{% else %}#ffffff{% endif %};font-size:24px;font-weight:800;line-height:1;">{{ n_sev4plus }}</div>
+        <div style="color:#93b3e6;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:3px;">Alert</div>
+      </td>
+      <td width="10"></td>
+      <td style="background:rgba(255,255,255,0.10);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="color:#ffffff;font-size:24px;font-weight:800;line-height:1;">{{ n_products }}</div>
+        <div style="color:#93b3e6;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:3px;">Products</div>
+      </td>
+      <td width="10"></td>
+      <td style="background:rgba(255,255,255,0.10);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="color:#ffffff;font-size:24px;font-weight:800;line-height:1;">{{ n_competitors }}</div>
+        <div style="color:#93b3e6;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:3px;">Competitors</div>
+      </td>
+    </tr>
+    </table>
+  </td>
+  </tr>
+
+  <!-- ═══ BODY ══════════════════════════════════════════════════ -->
+  <tr>
+  <td style="background:#ffffff;border-radius:0 0 12px 12px;padding:0 36px 36px;">
+
+  {% if findings|length == 0 %}
+    <div style="padding:56px 0;text-align:center;">
+      <div style="font-size:16px;font-weight:700;color:#475569;margin-bottom:6px;">No material updates today</div>
+      <div style="font-size:13px;color:#94a3b8;">Pipeline ran successfully — no qualifying findings.</div>
+    </div>
+  {% else %}
+
+  <!-- ── TOP MOVES ─────────────────────────────────────────────── -->
+  {% if top_moves %}
+  <div style="padding:28px 0 16px;">
+    <div style="display:inline-block;background:#dc2626;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:4px;">🚨 TODAY'S TOP MOVES</div>
+  </div>
+  {% for f in top_moves %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px solid {{ sev_border(f.effective_severity) }};border-radius:8px;margin-bottom:14px;overflow:hidden;">
+  <tr>
+  <td style="background:{{ sev_bg(f.effective_severity) }};padding:16px 18px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td>{{ sev_badge(f.effective_severity) | safe }}&nbsp;<span style="font-size:12px;color:#64748b;">{{ category_label(f.category) }}</span></td>
+      <td align="right" style="font-size:12px;color:#64748b;font-weight:600;">{{ competitor_label(f.competitor) }}</td>
+    </tr>
+    </table>
+    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-top:10px;line-height:1.4;">{{ f.title | e }}</div>
+    <div style="font-size:13px;color:#334155;margin-top:8px;line-height:1.7;">{{ f.summary | e }}</div>
+    {% if f.evidence_quote %}
+    <div style="font-size:12px;color:#64748b;margin-top:10px;padding:8px 14px;background:rgba(0,0,0,0.04);border-left:3px solid {{ sev_border(f.effective_severity) }};border-radius:0 4px 4px 0;font-style:italic;">&ldquo;{{ f.evidence_quote | truncate(220) | e }}&rdquo;</div>
+    {% endif %}
+    {% if f.products %}
+    <div style="margin-top:10px;">{% for pid in f.products %}<span style="display:inline-block;background:#e0e7ff;color:#3730a3;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-right:4px;margin-bottom:4px;">{{ product_label(pid) }}</span>{% endfor %}</div>
+    {% endif %}
+  </td>
+  </tr>
+  </table>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ── BY DOCEREE PRODUCT ────────────────────────────────────── -->
+  {% if by_product %}
+  <div style="padding:{% if top_moves %}16px{% else %}28px{% endif %} 0 4px;">
+    <div style="color:#93b3e6;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">CORE INTELLIGENCE</div>
+    <div style="font-size:20px;font-weight:800;color:#0f1f4b;padding-bottom:10px;border-bottom:3px solid #0f1f4b;">By Doceree Product</div>
+  </div>
+
+  {% for product_id, items in by_product.items() %}
+  {% set max_sev = items | map(attribute='effective_severity') | max %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-left:5px solid {{ sev_border(max_sev) }};border-radius:0 8px 8px 0;margin-top:16px;overflow:hidden;">
+  <tr>
+  <td>
+    <!-- Product title row -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+    <tr>
+      <td style="padding:12px 18px;">
+        <span style="font-size:15px;font-weight:800;color:#0f172a;">{{ product_label(product_id) }}</span>
+      </td>
+      <td align="right" style="padding:12px 18px;white-space:nowrap;">
+        <span style="background:#e2e8f0;color:#475569;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">{{ items|length }} finding{{ 's' if items|length != 1 else '' }}</span>
+        &nbsp;{{ sev_badge(max_sev) | safe }}
+      </td>
+    </tr>
+    </table>
+
+    <!-- Synthesis + action -->
+    <div style="padding:16px 18px;">
+      {% if per_product and product_id in per_product %}
+      <div style="font-size:13px;color:#334155;line-height:1.75;">{{ per_product[product_id].impact_summary | e }}</div>
+
+      <!-- Action box -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;">
+      <tr>
+      <td style="padding:12px 16px;">
+        <div style="font-size:10px;font-weight:700;color:#1d4ed8;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">▶ RECOMMENDED ACTION</div>
+        <div style="font-size:13px;color:#1e40af;line-height:1.55;font-weight:600;">{{ per_product[product_id].recommended_action | e }}</div>
+      </td>
+      </tr>
+      </table>
+      {% endif %}
+
+      <!-- Individual findings (sev 2+) -->
+      {% set notable = items | selectattr('effective_severity', 'ge', 2) | list %}
+      {% if notable %}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;border-top:1px solid #f1f5f9;">
+      {% for f in notable %}
+      <tr>
+        <td style="padding:7px 0 7px;vertical-align:middle;width:64px;border-bottom:1px solid #f8fafc;">{{ sev_badge(f.effective_severity) | safe }}</td>
+        <td style="padding:7px 6px;vertical-align:middle;border-bottom:1px solid #f8fafc;">
+          <span style="font-size:12px;font-weight:700;color:#475569;">{{ competitor_label(f.competitor) | e }}</span><span style="font-size:12px;color:#64748b;"> — {{ f.title | e }}</span>
+        </td>
+        <td style="padding:7px 0;text-align:right;vertical-align:middle;border-bottom:1px solid #f8fafc;white-space:nowrap;">
+          <a href="{{ f.display_url }}" style="font-size:11px;color:#3b82f6;text-decoration:none;">source&nbsp;↗</a>
+        </td>
+      </tr>
+      {% endfor %}
+      </table>
+      {% endif %}
+    </div>
+  </td>
+  </tr>
+  </table>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ── BY COMPETITOR CATEGORY ────────────────────────────────── -->
+  {% if by_category %}
+  <div style="padding:28px 0 4px;">
+    <div style="color:#93b3e6;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">MARKET LANDSCAPE</div>
+    <div style="font-size:20px;font-weight:800;color:#0f1f4b;padding-bottom:10px;border-bottom:3px solid #0f1f4b;">By Competitor Category</div>
+  </div>
+
+  {% for category_id, items in by_category.items() %}
+  <div style="margin-top:16px;">
+    <div style="font-size:11px;font-weight:800;color:#0f1f4b;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">{{ category_label(category_id) }}</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+    {% for f in items %}
+    <tr style="background:{% if loop.index is odd %}#ffffff{% else %}#f8fafc{% endif %};">
+      <td style="padding:10px 14px;vertical-align:middle;width:68px;border-bottom:{% if not loop.last %}1px solid #f1f5f9{% else %}none{% endif %};">{{ sev_badge(f.effective_severity) | safe }}</td>
+      <td style="padding:10px 6px;vertical-align:middle;border-bottom:{% if not loop.last %}1px solid #f1f5f9{% else %}none{% endif %};">
+        <span style="font-size:12px;font-weight:700;color:#334155;">{{ competitor_label(f.competitor) | e }}</span>
+        <span style="font-size:12px;color:#64748b;"> — {{ f.title | e }}</span>
+      </td>
+      <td style="padding:10px 14px;text-align:right;vertical-align:middle;border-bottom:{% if not loop.last %}1px solid #f1f5f9{% else %}none{% endif %};">
+        <a href="{{ f.display_url }}" style="font-size:11px;color:#3b82f6;text-decoration:none;white-space:nowrap;">↗</a>
+      </td>
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ── STRATEGIC SYNTHESIS ───────────────────────────────────── -->
+  {% if strategic %}
+  <div style="padding:28px 0 4px;">
+    <div style="color:#93b3e6;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">EXECUTIVE LAYER</div>
+    <div style="font-size:20px;font-weight:800;color:#0f1f4b;padding-bottom:10px;border-bottom:3px solid #0f1f4b;">Strategic Synthesis</div>
+  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fefce8;border:1px solid #fde047;border-radius:8px;margin-top:12px;">
+  <tr>
+  <td style="padding:20px 22px;">
+    <div style="font-size:13px;color:#334155;line-height:1.75;">{{ strategic.pattern | e }}</div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #fde047;">
+      <div style="font-size:10px;font-weight:800;color:#92400e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">LEADERSHIP AGENDA</div>
+      <div style="font-size:13px;color:#92400e;line-height:1.65;font-weight:600;">{{ strategic.implied_agenda | e }}</div>
+    </div>
+  </td>
+  </tr>
+  </table>
+  {% endif %}
+
+  <!-- ── WATCHLIST ─────────────────────────────────────────────── -->
+  {% if watchlist %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-top:24px;">
+  <tr>
+  <td style="padding:16px 20px;">
+    <div style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">WATCHLIST (SEV 1–2) — LOW PRIORITY</div>
+    {% for f in watchlist %}
+    <div style="margin-bottom:8px;font-size:12px;line-height:1.5;">
+      {{ sev_badge(f.effective_severity) | safe }}
+      <span style="margin-left:6px;font-weight:700;color:#475569;">{{ competitor_label(f.competitor) | e }}</span>
+      <span style="color:#94a3b8;"> — {{ f.title | e }}</span>
+    </div>
+    {% endfor %}
+  </td>
+  </tr>
+  </table>
+  {% endif %}
+
+  {% endif %}{# end if findings #}
+
+  </td>
+  </tr>
+
+  <!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
+  <tr>
+  <td style="padding:20px 0;text-align:center;">
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6;">
+      Generated by <strong>doceree-ci</strong> &nbsp;·&nbsp; {{ generated_at_ist }} IST<br>
+      <a href="https://github.com/SG131293/doceree-ci" style="color:#94a3b8;">github.com/SG131293/doceree-ci</a>
+    </div>
+  </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
+"""
+
+
+def _build_html_env() -> Environment:
+    env = Environment(
+        autoescape=True,
+        keep_trailing_newline=False,
+        undefined=StrictUndefined,
+    )
+    env.filters["product_label"] = _product_label
+    env.filters["competitor_label"] = _competitor_label
+    env.filters["category_label"] = _category_label
+    return env
+
+
+def render_html(
+    findings: list[Finding],
+    *,
+    per_product: dict[str, PerProductSynthesis] | None = None,
+    strategic: StrategicSynthesis | None = None,
+    run_date: str | None = None,
+) -> str:
+    """Render the HTML email digest.
+
+    Returns an HTML string suitable for `gmail.send_message(html=...)`.
+    """
+    now_ist = datetime.now(timezone.utc).astimezone(_IST)
+    run_date = run_date or now_ist.date().isoformat()
+
+    top_moves, watchlist = _split_top_moves_and_watchlist(findings)
+    by_product = _group_by_product(findings)
+    by_category = _group_by_category(findings)
+
+    n_sev4plus = sum(1 for f in findings if f.effective_severity >= 4)
+    n_products = _count_distinct_products(findings)
+    n_categories = _count_distinct_categories(findings)
+    n_competitors = _count_distinct_competitors(findings)
+
+    env = _build_html_env()
+    template = env.from_string(_HTML_TEMPLATE)
+    return template.render(
+        findings=findings,
+        top_moves=top_moves,
+        watchlist=watchlist,
+        by_product=by_product,
+        by_category=by_category,
+        per_product=per_product or {},
+        strategic=strategic,
+        n_sev4plus=n_sev4plus,
+        n_products=n_products,
+        n_categories=n_categories,
+        n_competitors=n_competitors,
+        run_date=run_date,
+        generated_at_ist=now_ist.strftime("%Y-%m-%d %H:%M"),
+        # Helpers
+        competitor_label=_competitor_label,
+        product_label=_product_label,
+        category_label=_category_label,
+        publisher_or_url=_publisher_or_url,
+        sev_badge=_sev_badge,
+        sev_border=_sev_border,
+        sev_bg=_sev_bg,
     )
 
 

@@ -50,7 +50,7 @@ from pipeline.verify import (
     kept_after_severity,
     severity_adversarial_findings,
 )
-from render.render import render_plaintext, render_subject
+from render.render import render_html, render_plaintext, render_subject
 from schema.finding import Finding
 from schema.source import SourceType
 from sources.rss import fetch_rss
@@ -140,6 +140,7 @@ def write_artifacts(
     *,
     findings: list[Finding],
     plaintext: str,
+    html: str,
     subject: str,
 ) -> None:
     """Write run artifacts to `out_dir` for upload by GitHub Actions.
@@ -147,6 +148,7 @@ def write_artifacts(
     Produces:
       findings.jsonl   one Finding per line (JSON-serialized via pydantic).
       digest.txt       the rendered plaintext body.
+      digest.html      the rendered HTML body (open in browser to preview).
       subject.txt      the rendered subject line.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -156,6 +158,7 @@ def write_artifacts(
         encoding="utf-8",
     )
     (out_dir / "digest.txt").write_text(plaintext, encoding="utf-8")
+    (out_dir / "digest.html").write_text(html, encoding="utf-8")
     (out_dir / "subject.txt").write_text(subject, encoding="utf-8")
 
 
@@ -238,12 +241,21 @@ async def run(
     plaintext = render_plaintext(
         kept_findings, per_product=per_product, strategic=strategic
     )
+    html = render_html(
+        kept_findings, per_product=per_product, strategic=strategic
+    )
     subject = render_subject(kept_findings)
 
     if out_dir is not None:
         # Write the FULL findings list (including rejected ones) for audit;
         # the renderer only consumed kept_findings.
-        write_artifacts(out_dir, findings=findings, plaintext=plaintext, subject=subject)
+        write_artifacts(
+            out_dir,
+            findings=findings,
+            plaintext=plaintext,
+            html=html,
+            subject=subject,
+        )
         logger.info("Wrote artifacts to %s", out_dir)
 
     if dry_run:
@@ -258,6 +270,7 @@ async def run(
         to=recipient,
         subject=subject,
         plaintext=plaintext,
+        html=html,
     )
     logger.info("Sent digest to %s (Gmail id=%s)", recipient, message_id)
     return 0
