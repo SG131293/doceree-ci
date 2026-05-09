@@ -243,11 +243,13 @@ class TestFetchRss:
         # Publisher domain should be eTLD+1 of the canonical URL.
         assert items[0].publisher_domain == "hippocraticai.com"
 
-    async def test_canonical_url_falls_back_to_source_element(
+    async def test_source_element_used_for_publisher_domain_only(
         self, make_http
     ) -> None:
-        """When the description has no embedded anchor, fall back to the
-        `<source url>` element."""
+        """When description has no embedded anchor, the <source url> element
+        is used for publisher_domain extraction only — NOT as canonical_url.
+        canonical_url stays None so display_url falls back to the Google News
+        redirect (entry.link), which correctly forwards to the article."""
         rss = (
             '<?xml version="1.0"?><rss version="2.0"><channel>'
             '<title>Google News</title><link>https://news.google.com/</link>'
@@ -270,15 +272,19 @@ class TestFetchRss:
                 competitor="hippocratic_ai",
             )
         assert len(items) == 1
-        assert items[0].canonical_url is not None
-        assert str(items[0].canonical_url).startswith("https://hippocraticai.com")
+        # No canonical_url — only the source homepage was available, not an article URL.
+        assert items[0].canonical_url is None
+        # publisher_domain still resolved from the source element homepage.
         assert items[0].publisher_domain == "hippocraticai.com"
+        # url (entry.link) is the Google News redirect — works when clicked.
+        assert "news.google.com" in str(items[0].url)
 
-    async def test_publisher_domain_falls_back_to_wire_url(
+    async def test_publisher_domain_from_wire_url_for_direct_feeds(
         self, make_http
     ) -> None:
-        """When neither anchor nor source element exposes a publisher URL,
-        we fall back to the eTLD+1 of the wire URL itself."""
+        """Direct publisher RSS feeds (not Google News) use entry.link as the
+        article URL for domain extraction when no anchor or source element is
+        present. The link is also usable as display_url since it IS the article."""
         rss = (
             '<?xml version="1.0"?><rss version="2.0"><channel>'
             '<title>x</title><link>https://www.optimizerx.com/</link>'
@@ -300,10 +306,12 @@ class TestFetchRss:
                 competitor="optimizerx",
             )
         assert len(items) == 1
-        # No canonical_url because there's no wrapper - the wire URL is canonical.
+        # No canonical_url because there's no wrapper - entry.link IS the article.
         assert items[0].canonical_url is None
-        # Publisher domain still set, derived from the wire URL.
+        # Publisher domain derived from wire URL (not Google News, so safe to use).
         assert items[0].publisher_domain == "optimizerx.com"
+        # url (entry.link) is the real article URL for direct publisher feeds.
+        assert str(items[0].url) == "https://www.optimizerx.com/news/q3-results"
 
     async def test_skips_entries_without_link_or_title(self, make_http) -> None:
         rss = (

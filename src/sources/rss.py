@@ -106,24 +106,23 @@ def _is_google_news_url(url: str) -> bool:
 
 
 def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
-    """Best-effort extraction of the publisher's article URL from a feed entry.
+    """Best-effort extraction of the publisher's ARTICLE URL from a feed entry.
 
     Google News RSS wraps real publisher links inside `<a href>` tags within
-    the entry description. Other feeds may expose the same info via the
-    `<source url>` element (feedparser surfaces it as `entry.source.href`).
+    the entry description. We look there first and return the first URL that
+    is not a Google News self-reference.
 
-    Returns None if we can't find a plausible non-Google-News canonical URL.
-    Self-referential links back to news.google.com are explicitly rejected
-    (the May-1 dry run logged `publisher_domain: 'google.com'` for both
-    findings because the description contained a self-link before the real
-    publisher anchor).
+    We deliberately do NOT fall back to `entry.source.href` here because
+    that field contains the publisher's *homepage* (e.g. `https://adgully.com/`)
+    not the article URL. Using the homepage as `canonical_url` caused every
+    "source ↗" link in the email to open the publisher homepage instead of
+    the specific article. When no article URL is found we return None and let
+    `display_url` fall back to the raw `entry.link` (the Google News redirect
+    URL), which DOES forward to the real article when clicked.
     """
-    # 1. Try ALL anchors in description / summary - return the first one
-    #    that doesn't point back at Google News.
     for field in ("summary", "description", "content"):
         raw = entry.get(field)
         if isinstance(raw, list) and raw:
-            # feedparser sometimes nests content in `[{value: ...}]`.
             raw = raw[0].get("value", "") if isinstance(raw[0], dict) else str(raw[0])
         if not isinstance(raw, str) or not raw:
             continue
@@ -131,9 +130,15 @@ def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
             href = m.group(1).strip()
             if href.startswith("http") and not _is_google_news_url(href):
                 return href
+    return None
 
-    # 2. Fall back to <source url> if present. This is usually the publisher
-    #    homepage, not the article URL, but it still beats news.google.com.
+
+def _extract_source_homepage(entry: feedparser.FeedParserDict) -> str | None:
+    """Return the publisher homepage URL from feed `<source>` metadata.
+
+    Used ONLY for extracting `publisher_domain` (e.g. `adgully.com`), NOT
+    for `canonical_url` / `display_url` — the homepage is not the article.
+    """
     source = entry.get("source")
     if isinstance(source, dict):
         href = source.get("href") or source.get("url")
@@ -143,7 +148,6 @@ def _extract_canonical_url(entry: feedparser.FeedParserDict) -> str | None:
             and not _is_google_news_url(href)
         ):
             return href
-
     return None
 
 
@@ -207,10 +211,23 @@ async def fetch_rss(
         summary = _strip_html(entry.get("summary") or entry.get("description") or "")
 
         canonical_url = _extract_canonical_url(entry)
-        # Publisher domain: prefer canonical URL; fall back to the wire URL.
-        # Empty string from registered_domain becomes None on the model.
-        domain_source = canonical_url or link
-        publisher_domain = registered_domain(domain_source) or None
+        source_homepage = _extract_source_homepage(entry)
+
+        # Publisher domain derivation priority:
+        #   1. canonical article URL (extracted from description anchor)
+        #   2. publisher homepage from <source> RSS element
+        #   3. wire `link` — ONLY if it is NOT a Google News URL (i.e. the
+        #      feed is a direct publisher RSS where link == the article URL).
+        #      Google News links must be excluded; they yield `google.com`.
+        if canonical_url:
+            domain_source: str | None = canonical_url
+        elif source_homepage:
+            domain_source = source_homepage
+        elif not _is_google_news_url(link):
+            domain_source = link
+        else:
+            domain_source = None
+        publisher_domain = (registered_domain(domain_source) or None) if domain_source else None
 
         try:
             item = RawItem(

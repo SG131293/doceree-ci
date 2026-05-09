@@ -10,13 +10,31 @@ Map the finding to the products it most directly affects (0-3 entries).
 If the item is broad / company-level (e.g., funding, M&A, leadership),
 return an empty list - that signals "cross-product / strategic".
 
-Severity scale (raw_severity):
-  1 informational   archive only
-  2 notable         worth tracking, no action
-  3 material        PMM should review this week
-  4 strategic       Sherry today; potential CEO/Sales relevance
-  5 urgent          battlecard impact, named-Doceree comparison, major M&A,
-                    funding round >= $50M
+Severity scale (raw_severity) — PRODUCT-FIRST CALIBRATION:
+  5 urgent       Battlecard impact: named-Doceree comparison, product that
+                 directly replicates a Doceree capability, major M&A (>$100M),
+                 funding round >= $50M, regulatory approval of competing product.
+  4 strategic    New product launch / feature release, major partnership with
+                 EHR/pharma/payer, new go-to-market channel that threatens a
+                 Doceree product, leadership hire that signals strategic shift,
+                 profit WARNING (>25% miss, guidance cut, going-concern risk).
+  3 material     Product update or integration, notable customer win (named
+                 pharma brand), pricing change, market entry into Doceree
+                 territory, secondary round or strategic financing >$10M.
+  2 notable      Early-stage product signal, partnership that may evolve,
+                 leadership change without clear strategic impact, job posting
+                 that signals a new capability build.
+  1 informational Everything else — routine filings, minor updates, reprints.
+
+FINANCIAL NEWS CALIBRATION — apply these caps regardless of dollar size:
+  - Share buyback / repurchase authorization                → max Sev 2
+  - Stock price move, daily/weekly rally or decline         → max Sev 1
+  - Quarterly earnings beat/miss (no guidance change)       → max Sev 1
+  - Analyst price-target or rating update                   → max Sev 1
+  - Institutional investment change (13F, fund buys/sells)  → max Sev 1
+  - Insider / director stock sale (routine Form 4)          → max Sev 1
+  EXCEPTION: if the earnings call reveals a NEW product, EHR partnership,
+  or major strategic pivot, rate the PRODUCT news at its own severity.
 
 Confidence (raw_confidence) 1-5: how authoritative is the source AND how
 explicit is the claim? Investor-relations press release = 4-5; vague blog
@@ -33,7 +51,7 @@ Required JSON (no extra fields):
   "title":           "<short headline, max 200 chars>",
   "summary":         "<60-300 chars: what happened and why it matters to Doceree>",
   "evidence_quote":  "<verbatim quote from the source supporting your claim, max 500 chars>",
-  "signal_type":     "<snake_case label, e.g. product_launch / partnership / funding_round / leadership_change / pricing_change / customer_win / ehr_partnership / poc_capability>",
+  "signal_type":     "<snake_case label — prefer product signals: product_launch / feature_release / ehr_partnership / poc_capability / customer_win / pricing_change / market_entry / partnership / funding_round / leadership_change / m_and_a. Use financial_report / stock_performance / institutional_investment / earnings_report only for pure financial items with no product angle>",
   "products":        ["<doceree_product_id>", ...],
   "raw_severity":    1-5,
   "raw_confidence":  1-5
