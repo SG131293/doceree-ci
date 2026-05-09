@@ -36,6 +36,7 @@ import logging
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import quote
 
 from clients.gemini import GeminiClient
 from clients.gmail import GmailClient
@@ -75,14 +76,26 @@ class CompetitorFeed:
 #
 # Why Google News (still): direct competitor newsroom RSS feeds don't exist
 # for most healthcare vendors; sitemap-based ingest lands in a future sprint.
-def _gnews_feed(query: str) -> str:
+def _gnews_feed(query: str, *, extra_terms: str = "") -> str:
     """Encode a Google News RSS URL for an exact-phrase competitor query
-    constrained to the last 24h."""
-    encoded = query.replace(" ", "+")
-    return (
-        f"https://news.google.com/rss/search?q=%22{encoded}%22+when:1d"
-        "&hl=en-US&gl=US&ceid=US:en"
+    constrained to the last 24h.
+
+    `query` is wrapped in quotes (Google News exact-phrase). `extra_terms`
+    is appended after the phrase to disambiguate generic names — e.g.
+    `extra_terms="pharma OR pharmacy"` for `Change Healthcare` to filter
+    out unrelated companies.
+
+    Uses `urllib.parse.quote` so compound names with punctuation encode
+    correctly (commas, ampersands, slashes).
+    """
+    phrase = quote(f'"{query}"', safe="")
+    url = (
+        f"https://news.google.com/rss/search?q={phrase}"
     )
+    if extra_terms:
+        url += "+" + quote(extra_terms, safe="+")
+    url += "+when:1d&hl=en-US&gl=US&ceid=US:en"
+    return url
 
 
 # Daily cohort = all competitors with monitoring_tier: direct in competitors.yaml
@@ -99,39 +112,48 @@ def _gnews_feed(query: str) -> str:
 #   relevate_health - "Relevate Health" search; confirms EHR campaign signals
 #   checkedup      - small DOOH network; monitor for partnerships / POC wins
 DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
-    # Healthcare DSP / Programmatic
+    # ── Healthcare DSP / Programmatic ─────────────────────────────────
     CompetitorFeed(competitor="deepintent",        name="DeepIntent",        feed_url=_gnews_feed("DeepIntent")),
-    CompetitorFeed(competitor="pulsepoint",        name="PulsePoint",        feed_url=_gnews_feed("PulsePoint")),
+    CompetitorFeed(competitor="pulsepoint",        name="PulsePoint",        feed_url=_gnews_feed("PulsePoint", extra_terms="healthcare OR pharma OR HCP")),
     CompetitorFeed(competitor="stackadapt",        name="StackAdapt",        feed_url=_gnews_feed("StackAdapt")),
-    CompetitorFeed(competitor="trade_desk",        name="The Trade Desk",    feed_url=_gnews_feed("The Trade Desk")),
-    CompetitorFeed(competitor="swoop",             name="Swoop",             feed_url=_gnews_feed("Swoop healthcare")),
-    # Healthcare Data & Analytics
+    CompetitorFeed(competitor="trade_desk",        name="The Trade Desk",    feed_url=_gnews_feed("The Trade Desk", extra_terms="healthcare OR pharma OR HCP OR OpenPath")),
+    CompetitorFeed(competitor="swoop",             name="Swoop",             feed_url=_gnews_feed("Swoop", extra_terms="healthcare OR pharma OR HCP")),
+    # ── Healthcare Data & Analytics ───────────────────────────────────
     CompetitorFeed(competitor="iqvia",             name="IQVIA",             feed_url=_gnews_feed("IQVIA")),
     CompetitorFeed(competitor="iqvia_digital",     name="IQVIA Digital",     feed_url=_gnews_feed("IQVIA Digital")),
     CompetitorFeed(competitor="komodo_health",     name="Komodo Health",     feed_url=_gnews_feed("Komodo Health")),
     CompetitorFeed(competitor="definitive_healthcare", name="Definitive Healthcare", feed_url=_gnews_feed("Definitive Healthcare")),
-    # HCP Marketing Platform / POC / EHR
+    # ── HCP Marketing Platform / POC / EHR ────────────────────────────
     CompetitorFeed(competitor="optimizerx",        name="OptimizeRx",        feed_url=_gnews_feed("OptimizeRx")),
     CompetitorFeed(competitor="veradigm",          name="Veradigm",          feed_url=_gnews_feed("Veradigm")),
     CompetitorFeed(competitor="relevate_health",   name="Relevate Health",   feed_url=_gnews_feed("Relevate Health")),
-    # HCP Publisher / Destination
+    # ── HCP Publisher / Destination ───────────────────────────────────
     CompetitorFeed(competitor="doximity",          name="Doximity",          feed_url=_gnews_feed("Doximity")),
     CompetitorFeed(competitor="medscape",          name="Medscape",          feed_url=_gnews_feed("Medscape")),
     CompetitorFeed(competitor="openevidence",      name="OpenEvidence",      feed_url=_gnews_feed("OpenEvidence")),
-    # Patient Access / Coupon
+    # ── Patient Access / Coupon ───────────────────────────────────────
     CompetitorFeed(competitor="covermymeds",       name="CoverMyMeds",       feed_url=_gnews_feed("CoverMyMeds")),
     CompetitorFeed(competitor="connectiverx",      name="ConnectiveRx",      feed_url=_gnews_feed("ConnectiveRx")),
-    CompetitorFeed(competitor="relayhealth_change", name="Change Healthcare", feed_url=_gnews_feed("Change Healthcare")),
-    # Pharmacy Software / POD
+    # `Change Healthcare` alone matches Teladoc/Lantheus/Alignment. Add
+    # disambiguators so attribution check (T4a) has fewer items to reject.
+    CompetitorFeed(competitor="relayhealth_change", name="Change Healthcare", feed_url=_gnews_feed("Change Healthcare", extra_terms="UnitedHealth OR Optum OR pharmacy OR claims OR RelayHealth")),
+    # ── Pharmacy Software / POD ───────────────────────────────────────
     CompetitorFeed(competitor="redsail_technologies", name="RedSail Technologies", feed_url=_gnews_feed("RedSail Technologies")),
-    # DOOH / Point-of-Care
+    # ── DOOH / Point-of-Care ──────────────────────────────────────────
     CompetitorFeed(competitor="patientpoint",      name="PatientPoint",      feed_url=_gnews_feed("PatientPoint")),
-    CompetitorFeed(competitor="checkedup",         name="CheckedUp",         feed_url=_gnews_feed("CheckedUp healthcare")),
-    # Admanager benchmark
-    CompetitorFeed(competitor="google_ad_manager", name="Google Ad Manager", feed_url=_gnews_feed("Google Ad Manager")),
-    # Agentic Pharma Engagement (RepTwin direct)
+    CompetitorFeed(competitor="checkedup",         name="CheckedUp",         feed_url=_gnews_feed("CheckedUp", extra_terms="healthcare OR point-of-care OR DOOH")),
+    CompetitorFeed(competitor="vistar_media",      name="Vistar Media",      feed_url=_gnews_feed("Vistar Media")),
+    # ── Admanager benchmark ───────────────────────────────────────────
+    CompetitorFeed(competitor="google_ad_manager", name="Google Ad Manager", feed_url=_gnews_feed("Google Ad Manager", extra_terms="publisher OR ads OR DFP")),
+    # ── Agentic Pharma Engagement (RepTwin direct) ────────────────────
     CompetitorFeed(competitor="roserx",            name="RoseRx",            feed_url=_gnews_feed("RoseRx")),
     CompetitorFeed(competitor="synthio_labs",      name="Synthio Labs",      feed_url=_gnews_feed("Synthio Labs")),
+    CompetitorFeed(competitor="prescriberpoint",   name="PrescriberPoint",   feed_url=_gnews_feed("PrescriberPoint", extra_terms="pharma OR HCP OR prescribing")),
+    CompetitorFeed(competitor="aktana",            name="Aktana",            feed_url=_gnews_feed("Aktana", extra_terms="pharma OR life sciences OR PharmaForceIQ")),
+    # `Salesforce` alone is too noisy; restrict to Agentforce + life-sci.
+    CompetitorFeed(competitor="salesforce_agentforce", name="Salesforce Agentforce", feed_url=_gnews_feed("Salesforce Agentforce", extra_terms="life sciences OR pharma OR HCP")),
+    # `Veeva` alone matches Vault Quality / R&D items; constrain to AI/CRM.
+    CompetitorFeed(competitor="veeva_ai",          name="Veeva AI",          feed_url=_gnews_feed("Veeva AI", extra_terms="Vault CRM OR pharma OR life sciences")),
 )
 
 

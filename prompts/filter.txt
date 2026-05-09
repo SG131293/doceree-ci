@@ -16,6 +16,18 @@ DROP if the item is:
   - Unrelated industries (consumer retail, gaming, automotive)
   - Republished content older than 24 hours from `published`
   - Generic listicle blog posts unrelated to the competitor's moves
+  - PURE FINANCIAL NOISE — drop these unless they include a strategic
+    angle (M&A, profit warning >25%, major guidance change):
+      * Stock-price movements, daily/weekly stock rallies or declines
+      * Routine earnings calls / earnings beats / earnings previews
+      * Analyst price-target updates or rating changes
+      * Institutional investment changes (e.g., "Crestwood Advisors
+        purchases shares of X"), 13F filings, insider buy/sell of
+        normal volume
+      * Director / officer routine stock sales (Form 4) under $5M
+    These add volume without strategic signal — Sherry already knows
+    public competitors' tickers. KEEP only when paired with M&A
+    news, capital raise >$50M, profit warning, or activist activity.
 
 Item:
   Competitor:  {competitor}

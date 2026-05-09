@@ -54,7 +54,7 @@ tier_1:
       - https://www.optimizerx.com/sitemap.xml
     sec_cik: "0001448431"
     public_jobs_boards: []  # own-domain careers page; no Greenhouse/Lever/Ashby slug confirmed
-    related_doceree_products: [poc, next, copay_com, pod, spark_for_ehrs]
+    related_doceree_products: [poc, next, copay_com, copay_com_health_systems, pod, spark_for_ehrs, spark_for_pharmacy]
     rep_priority: 5
     region: US-primary
 
@@ -69,7 +69,7 @@ tier_1:
       - https://veradigm.com/sitemap.xml
     sec_cik: null  # private (post-Allscripts spin-off; SEC status varies)
     public_jobs_boards: []
-    related_doceree_products: [poc, spark_for_ehrs, next, copay_com_health_systems]
+    related_doceree_products: [poc, spark_for_ehrs, spark_for_pharmacy, next, copay_com, copay_com_health_systems]
     rep_priority: 5
     region: US-primary
 
@@ -256,6 +256,7 @@ tier_2_mvp_cohort:
     canonical_domain: thetradedesk.com
     category: healthcare_dsp
     monitoring_tier: direct
+    aliases: ["The Trade Desk", "TheTradeDesk", "TTD"]
     short_description: "Independent omnichannel DSP; OpenPath; HCP endemic pharma marketplace launched 2025."
     rss_feeds: []
     sitemaps:
@@ -316,7 +317,8 @@ tier_2_mvp_cohort:
     name: Vistar Media
     canonical_domain: vistarmedia.com
     category: dooh_poc_network
-    monitoring_tier: adjacent
+    monitoring_tier: direct
+    aliases: ["Vistar Media", "VistarMedia"]
     short_description: "Cross-vertical programmatic DOOH platform — DSP, SSP, ad-server."
     rss_feeds: []
     sitemaps:
@@ -397,6 +399,7 @@ tier_2_mvp_cohort:
     canonical_domain: admanager.google.com
     category: hcp_publisher_destination
     monitoring_tier: direct
+    aliases: ["Google Ad Manager", "GAM", "DoubleClick for Publishers", "DFP"]
     short_description: "Google's publisher ad management platform; primary benchmark for Doceree Admanager product."
     rss_feeds: []
     sitemaps: []  # too broad; monitor via targeted Google News queries
@@ -448,8 +451,8 @@ tier_2_mvp_cohort:
     name: PrescriberPoint (PrescriberAI)
     canonical_domain: prescriberpoint.com
     category: agentic_pharma_engagement
-    monitoring_tier: adjacent
-    aliases: ["Prescriber.AI", "PrescriberAI"]
+    monitoring_tier: direct
+    aliases: ["Prescriber.AI", "PrescriberAI", "PrescriberPoint"]
     short_description: "AI-powered point-of-care prescribing workflow platform; PrescriberAI for HCP messaging."
     rss_feeds: []
     sitemaps:
@@ -466,7 +469,7 @@ tier_2_mvp_cohort:
     name: Salesforce Agentforce for Life Sciences
     canonical_domain: salesforce.com
     category: agentic_pharma_engagement
-    monitoring_tier: adjacent
+    monitoring_tier: direct
     aliases: ["Agentforce", "Salesforce Agentforce", "Agentforce for Life Sciences"]
     short_description: "CRM incumbent's agentic AI for life sciences commercial workflows; competes when Doceree positions RepTwin against Salesforce-native HCP engagement."
     rss_feeds: []
@@ -484,7 +487,7 @@ tier_2_mvp_cohort:
     name: Veeva AI for Vault CRM
     canonical_domain: veeva.com
     category: agentic_pharma_engagement
-    monitoring_tier: adjacent
+    monitoring_tier: direct
     aliases: ["Veeva AI", "Vault CRM AI", "Veeva Vault CRM AI"]
     short_description: "Life-sciences CRM incumbent's AI overlay on Vault CRM; structural threat to RepTwin if Veeva ships rep-side agents."
     rss_feeds: []
@@ -501,7 +504,7 @@ tier_2_mvp_cohort:
     name: Aktana / PharmaForceIQ
     canonical_domain: pharmaforceiq.com
     category: agentic_pharma_engagement
-    monitoring_tier: adjacent
+    monitoring_tier: direct
     aliases: ["Aktana", "PharmaForceIQ"]
     short_description: "Life-sciences commercial / medical AI orchestration; Aktana now under PharmaForceIQ."
     rss_feeds: []
@@ -560,6 +563,7 @@ healthcare_ai_cluster:
     canonical_domain: hippocraticai.com
     category: agentic_clinical_ai
     monitoring_tier: adjacent
+    aliases: ["Hippocratic AI", "HippocraticAI", "Hippocratic"]
     short_description: "Safety-focused healthcare LLMs; Constellation Architecture; 1.8M+ patient calls; 50+ partners; $404M raised."
     rss_feeds: []
     sitemaps:
@@ -576,6 +580,7 @@ healthcare_ai_cluster:
     canonical_domain: glass.health
     category: agentic_clinical_ai
     monitoring_tier: watchlist
+    aliases: ["Glass Health", "GlassHealth", "Glass.Health"]
     short_description: "AI-powered clinical decision-support and differential-diagnosis platform; HCP-facing."
     rss_feeds: []
     sitemaps: []
@@ -592,6 +597,7 @@ healthcare_ai_cluster:
     canonical_domain: suki.ai
     category: agentic_clinical_ai
     monitoring_tier: watchlist
+    aliases: ["Suki AI", "Suki.AI", "SukiAI"]
     short_description: "AI voice assistant for clinical documentation; ambient scribe; partnerships with Epic, Athena, MEDITECH."
     rss_feeds: []
     sitemaps:
