@@ -361,6 +361,78 @@ class TestFetchRss:
             )
         assert items == []
 
+    async def test_max_age_hours_drops_stale_entries(self, make_http) -> None:
+        """Sprint 8f fix: `max_age_hours` lets the runner widen the Google
+        News query window (`when:7d`) without flooding the pipeline with
+        week-old items. Stale-but-dated items get dropped at fetch time;
+        items with a missing `published_at` are kept (better to over-include
+        and let downstream stages filter than to silently lose them)."""
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        fresh = (now - timedelta(hours=2)).strftime("%a, %d %b %Y %H:%M:%S +0000")
+        stale = (now - timedelta(hours=200)).strftime("%a, %d %b %Y %H:%M:%S +0000")
+        rss = (
+            '<?xml version="1.0"?><rss version="2.0"><channel>'
+            '<title>x</title><link>https://example.com/</link>'
+            '<description>x</description>'
+            '<item><title>fresh</title>'
+            '<link>https://example.com/fresh</link>'
+            f'<description>x</description><pubDate>{fresh}</pubDate>'
+            '</item>'
+            '<item><title>stale</title>'
+            '<link>https://example.com/stale</link>'
+            f'<description>x</description><pubDate>{stale}</pubDate>'
+            '</item>'
+            '<item><title>undated</title>'
+            '<link>https://example.com/undated</link>'
+            '<description>no pubdate at all</description>'
+            '</item>'
+            "</channel></rss>"
+        )
+
+        def handler(req: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, content=rss.encode("utf-8"))
+
+        async with make_http(handler) as http:
+            items = await fetch_rss(
+                "https://example.com/feed",
+                http=http,
+                competitor="optimizerx",
+                max_age_hours=36,
+            )
+        titles = {i.title for i in items}
+        assert "fresh" in titles
+        assert "undated" in titles  # missing published_at is preserved
+        assert "stale" not in titles  # 200h > 36h cutoff
+
+    async def test_max_age_hours_none_keeps_everything(self, make_http) -> None:
+        """When `max_age_hours` is None (default), no freshness filter applies."""
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        old = (now - timedelta(days=30)).strftime("%a, %d %b %Y %H:%M:%S +0000")
+        rss = (
+            '<?xml version="1.0"?><rss version="2.0"><channel>'
+            '<title>x</title><link>https://example.com/</link>'
+            '<description>x</description>'
+            '<item><title>old</title>'
+            '<link>https://example.com/old</link>'
+            f'<description>x</description><pubDate>{old}</pubDate>'
+            '</item></channel></rss>'
+        )
+
+        def handler(req: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, content=rss.encode("utf-8"))
+
+        async with make_http(handler) as http:
+            items = await fetch_rss(
+                "https://example.com/feed",
+                http=http,
+                competitor="optimizerx",
+            )
+        # No max_age_hours filter = old items pass through.
+        assert len(items) == 1
+        assert items[0].title == "old"
+
     async def test_malformed_xml_returns_empty(self, make_http) -> None:
         def handler(req: httpx.Request) -> httpx.Response:
             return httpx.Response(200, content=b"not xml at all")

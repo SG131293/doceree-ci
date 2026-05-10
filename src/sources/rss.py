@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 
 import feedparser
@@ -158,6 +158,7 @@ async def fetch_rss(
     competitor: str,
     source_type: SourceType = SourceType.NEWSROOM,
     max_items: int = 50,
+    max_age_hours: int | None = None,
 ) -> list[RawItem]:
     """Fetch and parse one RSS feed into RawItems.
 
@@ -170,6 +171,16 @@ async def fetch_rss(
                      or newsroom; pass `SourceType.BLOG` for blog feeds, etc.
         max_items: Cap on items returned (per build plan: pre-filter cap of
                    200 / source / day; we go lower per call).
+        max_age_hours: If set, drop entries whose `published_at` is older
+                       than this many hours from "now". Items with a missing
+                       `published_at` are kept (better to over-include than
+                       silently lose a fresh-but-undated item). Used by the
+                       runner to widen the Google News query window
+                       (`when:7d`) while still only processing fresh items
+                       — Google News' freshness ranking is unreliable, so a
+                       wide query window plus a strict `max_age_hours`
+                       freshness filter beats a narrow `when:1d` query that
+                       returns 0 entries for niche competitors.
 
     Returns:
         A list of RawItem instances. May be empty if the feed had no items
@@ -198,11 +209,25 @@ async def fetch_rss(
         )
         return []
 
+    cutoff: datetime | None = (
+        datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+        if max_age_hours is not None
+        else None
+    )
+
     items: list[RawItem] = []
+    n_dropped_stale = 0
     for entry in parsed.entries[:max_items]:
         link = entry.get("link") or ""
         title = entry.get("title") or ""
         if not link or not title:
+            continue
+        published_at = _coerce_published(entry)
+        # Freshness gate: skip dated entries beyond the cutoff. Items with
+        # no published_at are kept — preferable to drop them at the next
+        # stage with full context than to lose a fresh-but-undated item here.
+        if cutoff is not None and published_at is not None and published_at < cutoff:
+            n_dropped_stale += 1
             continue
         # Strip HTML/Markdown from BOTH summary AND title (Google News emits
         # publisher names as Markdown links in titles, e.g. "[Viz.ai](http://Viz.ai)
@@ -239,12 +264,20 @@ async def fetch_rss(
                 competitor=competitor,
                 source_type=source_type,
                 collection_method=CollectionMethod.RSS,
-                published_at=_coerce_published(entry),
+                published_at=published_at,
             )
         except Exception as exc:  # pydantic ValidationError or invalid URL
             logger.debug("Skipping RSS entry from %s: %s", feed_url, exc)
             continue
         items.append(item)
 
-    logger.info("RSS %s: parsed %d/%d entries", feed_url, len(items), len(parsed.entries))
+    if n_dropped_stale:
+        logger.info(
+            "RSS %s: parsed %d/%d entries (dropped %d stale > %dh)",
+            feed_url, len(items), len(parsed.entries), n_dropped_stale, max_age_hours,
+        )
+    else:
+        logger.info(
+            "RSS %s: parsed %d/%d entries", feed_url, len(items), len(parsed.entries),
+        )
     return items

@@ -78,19 +78,30 @@ class CompetitorFeed:
 # for most healthcare vendors; sitemap-based ingest lands in a future sprint.
 def _gnews_feed(query: str) -> str:
     """Encode a Google News RSS URL for an exact-phrase competitor query
-    constrained to the last 24h.
+    over the last 7 days.
 
     `query` is URL-encoded and wrapped in quotes for Google News exact-phrase
     matching. Uses `urllib.parse.quote` so compound names with punctuation
     (commas, slashes, ampersands) encode correctly.
 
+    Why `when:7d` and not `when:1d`:
+    Empirical observation from the 2026-05-10 run — `when:1d` returned ZERO
+    entries for 24 of 35 competitors (DeepIntent, OptimizeRx, Veradigm,
+    Hippocratic AI, etc.) even when those companies had posted news. Google
+    News' freshness signal is unreliable for niche / B2B publishers because
+    indexing lag and rank thresholds wipe out recent results. `when:7d` gives
+    Google News a wider candidate pool to rank from. The pipeline then
+    applies a strict 36-hour `max_age_hours` filter inside `fetch_rss` so we
+    only process truly fresh items but do not lose them to the indexer's
+    freshness opacity.
+
     Boolean OR is NOT supported in Google News RSS queries — it is treated
-    as a literal search term, which breaks results. For disambiguation of
-    generic company names (e.g. "Change Healthcare"), rely on the T4a
-    attribution check stage rather than query-level operators.
+    as a literal search term. For disambiguation of generic company names
+    (e.g. "Change Healthcare"), rely on the T4a attribution check stage
+    rather than query-level operators.
     """
     phrase = quote(f'"{query}"', safe="")
-    return f"https://news.google.com/rss/search?q={phrase}+when:1d&hl=en-US&gl=US&ceid=US:en"
+    return f"https://news.google.com/rss/search?q={phrase}+when:7d&hl=en-US&gl=US&ceid=US:en"
 
 
 # Daily cohort = all competitors with monitoring_tier: direct in competitors.yaml
@@ -195,6 +206,7 @@ async def run(
     *,
     feeds: tuple[CompetitorFeed, ...] = DAY6_FEEDS,
     max_items_per_feed: int = 10,
+    max_age_hours: int = 36,
     dry_run: bool = False,
     send_to: str | None = None,
     out_dir: Path | None = None,
@@ -217,6 +229,7 @@ async def run(
                 competitor=feed.competitor,
                 source_type=feed.source_type,
                 max_items=max_items_per_feed,
+                max_age_hours=max_age_hours,
             )
             logger.info("Ingested %d items from %s", len(items), feed.name)
             all_items.extend(items)
@@ -325,6 +338,14 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Max RSS items per competitor feed (default 10).",
     )
     p.add_argument(
+        "--max-age-hours",
+        type=int,
+        default=36,
+        help="Drop RSS entries older than this many hours from now "
+             "(default 36 = 24h + indexing-lag buffer). Pass a larger value "
+             "for backfill / debugging runs.",
+    )
+    p.add_argument(
         "--out-dir",
         type=Path,
         default=None,
@@ -339,6 +360,7 @@ def main(argv: list[str] | None = None) -> int:
     return asyncio.run(
         run(
             max_items_per_feed=args.max_items,
+            max_age_hours=args.max_age_hours,
             dry_run=args.dry_run,
             send_to=args.send_to,
             out_dir=args.out_dir,
