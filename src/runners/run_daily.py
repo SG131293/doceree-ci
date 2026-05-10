@@ -76,26 +76,21 @@ class CompetitorFeed:
 #
 # Why Google News (still): direct competitor newsroom RSS feeds don't exist
 # for most healthcare vendors; sitemap-based ingest lands in a future sprint.
-def _gnews_feed(query: str, *, extra_terms: str = "") -> str:
+def _gnews_feed(query: str) -> str:
     """Encode a Google News RSS URL for an exact-phrase competitor query
     constrained to the last 24h.
 
-    `query` is wrapped in quotes (Google News exact-phrase). `extra_terms`
-    is appended after the phrase to disambiguate generic names — e.g.
-    `extra_terms="pharma OR pharmacy"` for `Change Healthcare` to filter
-    out unrelated companies.
+    `query` is URL-encoded and wrapped in quotes for Google News exact-phrase
+    matching. Uses `urllib.parse.quote` so compound names with punctuation
+    (commas, slashes, ampersands) encode correctly.
 
-    Uses `urllib.parse.quote` so compound names with punctuation encode
-    correctly (commas, ampersands, slashes).
+    Boolean OR is NOT supported in Google News RSS queries — it is treated
+    as a literal search term, which breaks results. For disambiguation of
+    generic company names (e.g. "Change Healthcare"), rely on the T4a
+    attribution check stage rather than query-level operators.
     """
     phrase = quote(f'"{query}"', safe="")
-    url = (
-        f"https://news.google.com/rss/search?q={phrase}"
-    )
-    if extra_terms:
-        url += "+" + quote(extra_terms, safe="+")
-    url += "+when:1d&hl=en-US&gl=US&ceid=US:en"
-    return url
+    return f"https://news.google.com/rss/search?q={phrase}+when:1d&hl=en-US&gl=US&ceid=US:en"
 
 
 # Daily cohort = all competitors with monitoring_tier: direct in competitors.yaml
@@ -113,11 +108,15 @@ def _gnews_feed(query: str, *, extra_terms: str = "") -> str:
 #   checkedup      - small DOOH network; monitor for partnerships / POC wins
 DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     # ── Healthcare DSP / Programmatic ─────────────────────────────────
+    # Note: exact-phrase queries are the primary disambiguation layer.
+    # Boolean OR is NOT supported in Google News RSS — extra terms must
+    # be AND-only (each term narrows results). T4a attribution check
+    # handles remaining false matches without inflating query complexity.
     CompetitorFeed(competitor="deepintent",        name="DeepIntent",        feed_url=_gnews_feed("DeepIntent")),
-    CompetitorFeed(competitor="pulsepoint",        name="PulsePoint",        feed_url=_gnews_feed("PulsePoint", extra_terms="healthcare OR pharma OR HCP")),
+    CompetitorFeed(competitor="pulsepoint",        name="PulsePoint",        feed_url=_gnews_feed("PulsePoint")),
     CompetitorFeed(competitor="stackadapt",        name="StackAdapt",        feed_url=_gnews_feed("StackAdapt")),
-    CompetitorFeed(competitor="trade_desk",        name="The Trade Desk",    feed_url=_gnews_feed("The Trade Desk", extra_terms="healthcare OR pharma OR HCP OR OpenPath")),
-    CompetitorFeed(competitor="swoop",             name="Swoop",             feed_url=_gnews_feed("Swoop", extra_terms="healthcare OR pharma OR HCP")),
+    CompetitorFeed(competitor="trade_desk",        name="The Trade Desk",    feed_url=_gnews_feed("The Trade Desk")),
+    CompetitorFeed(competitor="swoop",             name="Swoop",             feed_url=_gnews_feed("Swoop healthcare")),
     # ── Healthcare Data & Analytics ───────────────────────────────────
     CompetitorFeed(competitor="iqvia",             name="IQVIA",             feed_url=_gnews_feed("IQVIA")),
     CompetitorFeed(competitor="iqvia_digital",     name="IQVIA Digital",     feed_url=_gnews_feed("IQVIA Digital")),
@@ -134,26 +133,24 @@ DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     # ── Patient Access / Coupon ───────────────────────────────────────
     CompetitorFeed(competitor="covermymeds",       name="CoverMyMeds",       feed_url=_gnews_feed("CoverMyMeds")),
     CompetitorFeed(competitor="connectiverx",      name="ConnectiveRx",      feed_url=_gnews_feed("ConnectiveRx")),
-    # `Change Healthcare` alone matches Teladoc/Lantheus/Alignment. Add
-    # disambiguators so attribution check (T4a) has fewer items to reject.
-    CompetitorFeed(competitor="relayhealth_change", name="Change Healthcare", feed_url=_gnews_feed("Change Healthcare", extra_terms="UnitedHealth OR Optum OR pharmacy OR claims OR RelayHealth")),
+    # "Change Healthcare" alone matches unrelated companies; T4a handles
+    # false attributions (Teladoc/Lantheus/Alignment).
+    CompetitorFeed(competitor="relayhealth_change", name="Change Healthcare", feed_url=_gnews_feed("Change Healthcare")),
     # ── Pharmacy Software / POD ───────────────────────────────────────
     CompetitorFeed(competitor="redsail_technologies", name="RedSail Technologies", feed_url=_gnews_feed("RedSail Technologies")),
     # ── DOOH / Point-of-Care ──────────────────────────────────────────
     CompetitorFeed(competitor="patientpoint",      name="PatientPoint",      feed_url=_gnews_feed("PatientPoint")),
-    CompetitorFeed(competitor="checkedup",         name="CheckedUp",         feed_url=_gnews_feed("CheckedUp", extra_terms="healthcare OR point-of-care OR DOOH")),
+    CompetitorFeed(competitor="checkedup",         name="CheckedUp",         feed_url=_gnews_feed("CheckedUp healthcare")),
     CompetitorFeed(competitor="vistar_media",      name="Vistar Media",      feed_url=_gnews_feed("Vistar Media")),
     # ── Admanager benchmark ───────────────────────────────────────────
-    CompetitorFeed(competitor="google_ad_manager", name="Google Ad Manager", feed_url=_gnews_feed("Google Ad Manager", extra_terms="publisher OR ads OR DFP")),
+    CompetitorFeed(competitor="google_ad_manager", name="Google Ad Manager", feed_url=_gnews_feed("Google Ad Manager")),
     # ── Agentic Pharma Engagement (RepTwin direct) ────────────────────
     CompetitorFeed(competitor="roserx",            name="RoseRx",            feed_url=_gnews_feed("RoseRx")),
     CompetitorFeed(competitor="synthio_labs",      name="Synthio Labs",      feed_url=_gnews_feed("Synthio Labs")),
-    CompetitorFeed(competitor="prescriberpoint",   name="PrescriberPoint",   feed_url=_gnews_feed("PrescriberPoint", extra_terms="pharma OR HCP OR prescribing")),
-    CompetitorFeed(competitor="aktana",            name="Aktana",            feed_url=_gnews_feed("Aktana", extra_terms="pharma OR life sciences OR PharmaForceIQ")),
-    # `Salesforce` alone is too noisy; restrict to Agentforce + life-sci.
-    CompetitorFeed(competitor="salesforce_agentforce", name="Salesforce Agentforce", feed_url=_gnews_feed("Salesforce Agentforce", extra_terms="life sciences OR pharma OR HCP")),
-    # `Veeva` alone matches Vault Quality / R&D items; constrain to AI/CRM.
-    CompetitorFeed(competitor="veeva_ai",          name="Veeva AI",          feed_url=_gnews_feed("Veeva AI", extra_terms="Vault CRM OR pharma OR life sciences")),
+    CompetitorFeed(competitor="prescriberpoint",   name="PrescriberPoint",   feed_url=_gnews_feed("PrescriberPoint")),
+    CompetitorFeed(competitor="aktana",            name="Aktana",            feed_url=_gnews_feed("Aktana pharma")),
+    CompetitorFeed(competitor="salesforce_agentforce", name="Salesforce Agentforce", feed_url=_gnews_feed("Salesforce Agentforce")),
+    CompetitorFeed(competitor="veeva_ai",          name="Veeva AI",          feed_url=_gnews_feed("Veeva AI")),
 )
 
 
