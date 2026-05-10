@@ -151,6 +151,16 @@ DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     CompetitorFeed(competitor="aktana",            name="Aktana",            feed_url=_gnews_feed("Aktana pharma")),
     CompetitorFeed(competitor="salesforce_agentforce", name="Salesforce Agentforce", feed_url=_gnews_feed("Salesforce Agentforce")),
     CompetitorFeed(competitor="veeva_ai",          name="Veeva AI",          feed_url=_gnews_feed("Veeva AI")),
+    # ── RepTwin competitors ──────────────────────────────────────────────
+    CompetitorFeed(competitor="hippocratic_ai",    name="Hippocratic AI",    feed_url=_gnews_feed("Hippocratic AI")),
+    # ── Patient Access / Affordability ───────────────────────────────────
+    CompetitorFeed(competitor="goodrx",            name="GoodRx",            feed_url=_gnews_feed("GoodRx")),
+    # ── Pharmacy / POD competitors ───────────────────────────────────────
+    CompetitorFeed(competitor="drfirst",           name="DrFirst",           feed_url=_gnews_feed("DrFirst pharmacy")),
+    CompetitorFeed(competitor="medadvisor",        name="MedAdvisor",        feed_url=_gnews_feed("MedAdvisor Solutions")),
+    # ── ABM competitors ──────────────────────────────────────────────────
+    CompetitorFeed(competitor="demandbase",        name="Demandbase",        feed_url=_gnews_feed("Demandbase healthcare")),
+    CompetitorFeed(competitor="six_sense",         name="6sense",            feed_url=_gnews_feed("6sense life sciences")),
 )
 
 

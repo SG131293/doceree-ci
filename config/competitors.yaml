@@ -333,33 +333,33 @@ tier_2_mvp_cohort:
     name: GoodRx
     canonical_domain: goodrx.com
     category: patient_access_coupon
-    monitoring_tier: adjacent
-    short_description: "Consumer prescription savings marketplace; recent expanded access deals with manufacturers (Wegovy HD; Lilly's Foundayo)."
+    monitoring_tier: direct
+    short_description: "Consumer prescription savings marketplace; recent expanded access deals with manufacturers (Wegovy HD; Lilly's Foundayo). Direct co-pay.com competitor on consumer/patient affordability."
     rss_feeds: []
     sitemaps:
       - https://www.goodrx.com/sitemap.xml
     sec_cik: "0001809519"
     public_jobs_boards: []
-    related_doceree_products: [copay_com]
-    rep_priority: 3
+    related_doceree_products: [copay_com, copay_com_health_systems]
+    rep_priority: 4
     region: US-primary
-    notes: "Consumer-side adjacent competitor — workflow-placement contrast."
+    notes: "Consumer-side competitor — workflow-placement contrast vs co-pay.com inside EHR."
 
   - id: demandbase
     name: Demandbase
     canonical_domain: demandbase.com
     category: b2b_abm
-    monitoring_tier: adjacent
-    short_description: "Generic B2B ABM platform — Demandbase One ABX. 150M+ contacts, 99M+ companies."
+    monitoring_tier: direct
+    short_description: "Generic B2B ABM platform — Demandbase One ABX. 150M+ contacts. Monitor for healthcare/life-sciences vertical entry (Sev 4 per signal mapping rule R7.19)."
     rss_feeds: []
     sitemaps:
       - https://www.demandbase.com/sitemap.xml
     sec_cik: null  # private
     public_jobs_boards: []
     related_doceree_products: [abm]
-    rep_priority: 3
+    rep_priority: 4
     region: Global cross-vertical
-    notes: "Generic ABM benchmark; entry into healthcare would escalate priority."
+    notes: "Healthcare vertical entry = Sev 4. Monitor for medical-publisher integrations and pharma ABM module launches."
 
   # ----- Sprint 8 follow-up: 4 direct competitors from COMPETITION_BY_PRODUCT.md -----
   # These appear as High/Direct in the product matrix but were absent from the
@@ -409,6 +409,55 @@ tier_2_mvp_cohort:
     rep_priority: 3
     region: Global
     notes: "Infrastructure benchmark, not direct sales competitor; monitor for publisher-side feature changes."
+
+  - id: medadvisor
+    name: MedAdvisor Solutions
+    canonical_domain: medadvisor.com
+    category: patient_access_coupon
+    monitoring_tier: direct
+    aliases: ["MedAdvisor", "MedAdvisor Solutions"]
+    short_description: "App-native patient adherence specialist; pharmacy-facing engagement; POD direct competitor on adherence loops."
+    rss_feeds: []
+    sitemaps:
+      - https://www.medadvisor.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [pod, spark_for_pharmacy, copay_com]
+    rep_priority: 3
+    region: US-primary
+
+  - id: drfirst
+    name: DrFirst
+    canonical_domain: drfirst.com
+    category: pharmacy_software
+    monitoring_tier: direct
+    aliases: ["DrFirst", "DrFirst SmartSuite", "DrFirst Rcopia"]
+    short_description: "Pharmacy e-prescribing, medication management, and SmartSuite clinical-messaging platform. Direct POD and Spark for Pharmacy competitor."
+    rss_feeds: []
+    sitemaps:
+      - https://drfirst.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [pod, spark_for_pharmacy, poc]
+    rep_priority: 3
+    region: US-primary
+
+  - id: six_sense
+    name: 6sense
+    canonical_domain: 6sense.com
+    category: b2b_abm
+    monitoring_tier: direct
+    aliases: ["6sense", "6sense Revenue AI"]
+    short_description: "B2B ABM/revenue AI platform; expanding into life sciences / pharma vertical. Direct ABM competitor when healthcare module launches."
+    rss_feeds: []
+    sitemaps:
+      - https://6sense.com/sitemap.xml
+    sec_cik: null
+    public_jobs_boards: []
+    related_doceree_products: [abm]
+    rep_priority: 3
+    region: Global
+    notes: "Healthcare vertical entry = Sev 4. Monitor for pharma / life-sciences ABM announcements."
 
   - id: relayhealth_change
     name: Change Healthcare / Optum Insight
@@ -562,7 +611,7 @@ healthcare_ai_cluster:
     name: Hippocratic AI
     canonical_domain: hippocraticai.com
     category: agentic_clinical_ai
-    monitoring_tier: adjacent
+    monitoring_tier: direct
     aliases: ["Hippocratic AI", "HippocraticAI", "Hippocratic"]
     short_description: "Safety-focused healthcare LLMs; Constellation Architecture; 1.8M+ patient calls; 50+ partners; $404M raised."
     rss_feeds: []

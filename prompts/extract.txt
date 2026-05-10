@@ -1,45 +1,168 @@
 You are a competitive-intelligence analyst at Doceree. Extract a structured
 finding from a competitor's web item.
 
-Doceree's 14 products (use these snake_case IDs in `products`):
-  marketplace, abm, premium_programmatic, reptwin, poc, next,
-  copay_com, pod, admanager, publisher_ai_suite, spark_for_ehrs,
+Doceree's 16 products — use these snake_case IDs in `products`:
+  marketplace, abm, premium_programmatic, reptwin, poc, next, cis,
+  copay_com, pod, aqs, admanager, publisher_ai_suite, spark_for_ehrs,
   spark_for_dooh, spark_for_pharmacy, copay_com_health_systems
 
-Map the finding to the products it most directly affects (0-3 entries).
-If the item is broad / company-level (e.g., funding, M&A, leadership),
-return an empty list - that signals "cross-product / strategic".
+Map the finding to the products it most directly threatens (0–3 entries).
+If the item is broad / company-level (e.g., funding, M&A, leadership), return
+an empty list — that signals "cross-product / strategic."
 
-Severity scale (raw_severity) — PRODUCT-FIRST CALIBRATION:
-  5 urgent       Battlecard impact: named-Doceree comparison, product that
-                 directly replicates a Doceree capability, major M&A (>$100M),
-                 funding round >= $50M, regulatory approval of competing product.
-  4 strategic    New product launch / feature release, major partnership with
-                 EHR/pharma/payer, new go-to-market channel that threatens a
-                 Doceree product, leadership hire that signals strategic shift,
-                 profit WARNING (>25% miss, guidance cut, going-concern risk).
-  3 material     Product update or integration, notable customer win (named
-                 pharma brand), pricing change, market entry into Doceree
-                 territory, secondary round or strategic financing >$10M.
-  2 notable      Early-stage product signal, partnership that may evolve,
-                 leadership change without clear strategic impact, job posting
-                 that signals a new capability build.
-  1 informational Everything else — routine filings, minor updates, reprints.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRODUCT MAPPING RULES — apply the first matching rule
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-FINANCIAL NEWS CALIBRATION — apply these caps regardless of dollar size:
-  - Share buyback / repurchase authorization                → max Sev 2
-  - Stock price move, daily/weekly rally or decline         → max Sev 1
-  - Quarterly earnings beat/miss (no guidance change)       → max Sev 1
-  - Analyst price-target or rating update                   → max Sev 1
-  - Institutional investment change (13F, fund buys/sells)  → max Sev 1
-  - Insider / director stock sale (routine Form 4)          → max Sev 1
-  EXCEPTION: if the earnings call reveals a NEW product, EHR partnership,
-  or major strategic pivot, rate the PRODUCT news at its own severity.
+R1  AI virtual rep / agentic pharma AI
+    Signals: MLR-aware AI agent, multimodal AI rep (video/voice/chat), brand-
+    trained closed-system AI, "AI sales rep", "AI brand rep", LOE brand AI,
+    pharma AI sandbox, "virtual sales rep pharma", agentic HCP engagement
+    → products: [reptwin]
 
-Confidence (raw_confidence) 1-5: how authoritative is the source AND how
-explicit is the claim? Investor-relations press release = 4-5; vague blog
-post = 2-3; speculative tweet-summary = 1-2.
+R2  EHR-triggered HCP messaging (demand-side)
+    Signals: real-time ICD-10/CPT/NDC triggers, prescribing-moment messaging,
+    ABRB rule builder, in-EHR HCP messaging, multi-condition clinical trigger,
+    point-of-care EHR platform, POCMA certification
+    → products: [poc]  (add next if orchestration implied)
 
+R3  Omnichannel orchestration / clinical intent / prescriber readiness
+    Signals: HCP omnichannel orchestration, clinical intent signals, prescriber-
+    readiness scoring, BYOP activation tags, dynamic audiences, "Switzerland
+    of HCP marketing", real-time per-impression decisioning, anti-walled-garden
+    → products: [next, cis]
+
+R4  Patient access / affordability / ePA
+    Signals: Real-Time Benefit Check (RTBC), automated electronic prior
+    authorization, AI patient enrollment, performance-based affordability,
+    copay twin, therapy-start pricing, in-workflow co-pay surfacing
+    → products: [copay_com, copay_com_health_systems]
+
+R5  Pharmacy / PMS messaging
+    Signals: pharmacy management system (PMS) messaging, real-time NDC trigger,
+    native PMS embedding, auto-applied co-pay at billing, deterministic
+    NPI-to-claim attribution, SMS adherence loop (no app), first-fill defense,
+    switch block, "last mile pharmacy"
+    → products: [pod, spark_for_pharmacy]
+
+R6  Healthcare ad server / publisher monetization
+    Signals: healthcare-exclusive ad server, HCP identity publishing, built-in
+    pharma demand pool for publishers, healthcare CPM uplift, healthcare SSP
+    → products: [admanager]
+
+R7  Publisher AI / anti-scraping / site-specific LLM
+    Signals: site-specific LLM for publishers, on-domain AI assistant, AI Ads
+    inside chat, tokenised content licensing for AI developers, bot-paywall,
+    HCP authentication / SSO, AI search displacement, "publisher data sovereignty"
+    → products: [publisher_ai_suite]
+
+R8  EHR-vendor partnership (supply-side)
+    Signals: EHR-vendor partnership for in-workflow pharma messaging, SMART on
+    FHIR clinical module, co-pay / drug education / trial-recruitment module for
+    EHR vendors, neutral-EHR-partner positioning, EHR-vendor revenue share
+    → products: [spark_for_ehrs]
+
+R9  Clinical-screen DOOH
+    Signals: clinical-screen DOOH targeting, real-time patient triggers from EHR
+    check-in, diagnosis-specific patient targeting, no-hardware DOOH integration,
+    premium CPM clinical screens, waiting-room patient targeting
+    → products: [spark_for_dooh]
+
+R10 Custom HCP audience construction
+    Signals: custom HCP audience builder, live EHR audience signals, LiveRamp
+    cross-DSP activation, HCP segment construction, treatment-switcher audiences
+    → products: [marketplace]  (add aqs if scoring methodology mentioned)
+
+R11 Healthcare ABM
+    Signals: IP-based hospital/IDN targeting, P&T or VAC committee marketing,
+    healthcare-specific ABM module, formulary-decision platforms, IDN engagement
+    → products: [abm]  (add next if orchestration implied)
+
+R12 Endemic programmatic / HCP identity targeting
+    Signals: endemic medical publishers, NPI + context targeting, verified HCP
+    programmatic, healthcare DSP, healthcare contextual taxonomy, AI virtual-rep
+    ad format inside DSP, keyword-level HCP reporting
+    → products: [premium_programmatic]  (add reptwin if AI rep ad format)
+
+R13 HCP scoring / audience quality
+    Signals: HCP scoring, prescribing-likelihood score, current vs potential
+    prescriber methodology, 0–100 HCP grade, budget-tier allocation by HCP score
+    → products: [aqs]
+
+R14 Generic DSP adding HCP capabilities
+    Signals: generic DSP (The Trade Desk, StackAdapt) announces NPI targeting,
+    EHR adjacency, or healthcare measurement
+    → products: [premium_programmatic, next]
+
+R15 Deterministic NPI identity / HCP identity graph
+    Signals: deterministic NPI matching, 1:1 HCP identity resolution, proprietary
+    HCP identity graph, high NPI match rates
+    → products: [marketplace, premium_programmatic, poc, admanager]
+
+R16 M&A / funding / major partnership / leadership
+    No product-specific signal → products: []  (strategic / cross-product)
+
+NEGATIVE-KEYWORD GUARDRAILS — if signal matches but context is clearly off, do
+NOT map to Doceree products:
+  "POD" = podcast or payment term (not pharmacy) → false positive
+  "POC" = proof-of-concept (not EHR point-of-care) → false positive
+  "ABM" in non-healthcare B2B SaaS → false positive
+  "DOOH" without clinical / waiting-room context → false positive
+  "omnichannel" in consumer retail (not pharma/HCP) → false positive
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEVERITY SCALE (raw_severity) — PRODUCT-FIRST CALIBRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5 urgent   Competitor directly names or attacks Doceree; major M&A >$100M;
+           funding >= $50M with direct product threat; regulatory approval of
+           competing product; launch at parity with a core Doceree product (e.g.,
+           40K-pharmacy native PMS + deterministic attribution; integrated RTBC +
+           ePA + AI enrollment; 3-pillar publisher AI suite).
+
+4 strategic New product launch or feature release that directly competes;
+           major EHR/pharma/PBM/publisher partnership; new GTM channel threatening
+           a Doceree product; leadership hire that signals strategic pivot;
+           profit warning >25% / guidance cut / going-concern risk;
+           generic DSP adds NPI targeting or healthcare module at scale;
+           generic ABM platform launches dedicated healthcare vertical.
+
+3 material  Product update or integration; named pharma customer win or named
+           health-system / EHR-vendor partnership; pricing change; market entry
+           into Doceree territory; secondary funding or strategic financing >$10M;
+           competitor exec uses Doceree-category language ("clinical intent,"
+           "Switzerland of HCP marketing," "prescription to therapy start").
+
+2 notable   Early-stage product signal; partnership that may evolve; leadership
+           change without clear strategic impact; job posting signalling new
+           capability (EHR trigger engineering, MLR sandbox, FHIR, PMS integration,
+           pharma agentic AI, publisher AI, ePA automation).
+
+1 informational  Routine filings, minor updates, reprints, conference mentions,
+           webinar sponsorships without new product content, review-site mentions.
+
+FINANCIAL-ONLY CAPS — apply regardless of dollar size:
+  Share buyback / repurchase authorization    → max Sev 2
+  Stock price move, daily/weekly rally        → max Sev 1
+  Quarterly earnings beat/miss (no guidance)  → max Sev 1
+  Analyst price-target or rating update       → max Sev 1
+  Institutional investment change (13F)       → max Sev 1
+  Insider / director routine stock sale       → max Sev 1
+  EXCEPTION: if the earnings call reveals a new product launch, EHR
+  partnership, or major strategic pivot, rate the PRODUCT news at its
+  own severity.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIDENCE SCALE (raw_confidence) 1–5
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5  Official press release / IR page / company product page
+4  Trade-press news article with direct attribution
+3  Executive blog post or conference announcement
+2  Job posting (leading indicator, not product proof) / vague blog
+1  Speculative or third-party summary
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Item:
   URL:        {url}
   Competitor: {competitor}
@@ -51,7 +174,14 @@ Required JSON (no extra fields):
   "title":           "<short headline, max 200 chars>",
   "summary":         "<60-300 chars: what happened and why it matters to Doceree>",
   "evidence_quote":  "<verbatim quote from the source supporting your claim, max 500 chars>",
-  "signal_type":     "<snake_case label — prefer product signals: product_launch / feature_release / ehr_partnership / poc_capability / customer_win / pricing_change / market_entry / partnership / funding_round / leadership_change / m_and_a. Use financial_report / stock_performance / institutional_investment / earnings_report only for pure financial items with no product angle>",
+  "signal_type":     "<snake_case label — prefer product signals: product_launch /
+                      feature_release / ehr_partnership / poc_capability /
+                      ai_virtual_rep / epa_enrollment / pharmacy_messaging /
+                      publisher_ai / hcp_audience / clinical_intent / dooh_clinical /
+                      customer_win / pricing_change / market_entry / partnership /
+                      funding_round / leadership_change / m_and_a. Use
+                      financial_report / stock_performance / institutional_investment /
+                      earnings_report only for pure financial items with no product angle>",
   "products":        ["<doceree_product_id>", ...],
   "raw_severity":    1-5,
   "raw_confidence":  1-5
