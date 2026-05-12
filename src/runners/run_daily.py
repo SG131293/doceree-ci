@@ -105,9 +105,16 @@ def _gnews_feed(query: str) -> str:
     return f"https://news.google.com/rss/search?q={phrase}+when:7d&hl=en-US&gl=US&ceid=US:en"
 
 
-# Daily cohort = all competitors with monitoring_tier: direct in competitors.yaml
-# (per docs/COMPETITION_BY_PRODUCT.md "High / Direct" matrix). Variable name
-# kept as DAY6_FEEDS for git-blame continuity.
+# Daily cohort = EVERY competitor in config/competitors.yaml — Sherry's
+# requirement is full-coverage daily monitoring across all tiers (direct,
+# adjacent, watchlist). The variable name is kept as DAY6_FEEDS for
+# git-blame continuity even though the Day-6 scope is long superseded.
+#
+# Feed-count >= competitor-count: top competitors get a secondary product-name
+# query alongside the brand query (e.g. "Doximity" + "Doximity DocsGPT") to
+# catch news that references a product without the company name. The T4a.5
+# `dedup_items` step collapses syndicated coverage that hits both queries to
+# one finding before extract pays Flash cost.
 #
 # Notes on specific entries:
 #   iqvia_digital  - query "IQVIA Digital" (formerly Lasso); distinct from "IQVIA"
@@ -118,6 +125,10 @@ def _gnews_feed(query: str) -> str:
 #                        UnitedHealth acquisition)
 #   relevate_health - "Relevate Health" search; confirms EHR campaign signals
 #   checkedup      - small DOOH network; monitor for partnerships / POC wins
+#   ai-scribe cluster (abridge/ambience/deepscribe/nabla/suki/...) - low
+#                    expected daily volume; included for completeness because
+#                    a customer-win or EHR partnership announcement from any
+#                    of these is a Sev-3+ RepTwin signal and must not be missed
 DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     # ── Healthcare DSP / Programmatic ─────────────────────────────────
     # Note: exact-phrase queries are the primary disambiguation layer.
@@ -163,7 +174,7 @@ DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     CompetitorFeed(competitor="aktana",            name="Aktana",            feed_url=_gnews_feed("Aktana pharma")),
     CompetitorFeed(competitor="salesforce_agentforce", name="Salesforce Agentforce", feed_url=_gnews_feed("Salesforce Agentforce")),
     CompetitorFeed(competitor="veeva_ai",          name="Veeva AI",          feed_url=_gnews_feed("Veeva AI")),
-    # ── RepTwin competitors ──────────────────────────────────────────────
+    # ── RepTwin direct competitors ───────────────────────────────────────
     CompetitorFeed(competitor="hippocratic_ai",    name="Hippocratic AI",    feed_url=_gnews_feed("Hippocratic AI")),
     # ── Patient Access / Affordability ───────────────────────────────────
     CompetitorFeed(competitor="goodrx",            name="GoodRx",            feed_url=_gnews_feed("GoodRx")),
@@ -173,6 +184,40 @@ DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     # ── ABM competitors ──────────────────────────────────────────────────
     CompetitorFeed(competitor="demandbase",        name="Demandbase",        feed_url=_gnews_feed("Demandbase healthcare")),
     CompetitorFeed(competitor="six_sense",         name="6sense",            feed_url=_gnews_feed("6sense life sciences")),
+    # ── Healthcare AI scribes / clinical AI cluster (watchlist) ──────────
+    # Per docs/COMPETITION_BY_PRODUCT.md, all RepTwin-adjacent agentic /
+    # ambient-clinical-AI players. Low signal volume expected per company
+    # but user requirement is full-coverage — every competitor in
+    # competitors.yaml must have at least one ingest path.
+    CompetitorFeed(competitor="glass_health",      name="Glass Health",      feed_url=_gnews_feed("Glass Health AI")),
+    CompetitorFeed(competitor="suki",              name="Suki AI",           feed_url=_gnews_feed("Suki AI")),
+    CompetitorFeed(competitor="abridge",           name="Abridge",           feed_url=_gnews_feed("Abridge AI")),
+    CompetitorFeed(competitor="nabla",             name="Nabla",             feed_url=_gnews_feed("Nabla healthcare")),
+    CompetitorFeed(competitor="ambience",          name="Ambience Healthcare", feed_url=_gnews_feed("Ambience Healthcare")),
+    CompetitorFeed(competitor="deepscribe",        name="DeepScribe",        feed_url=_gnews_feed("DeepScribe")),
+    CompetitorFeed(competitor="curai",             name="Curai Health",      feed_url=_gnews_feed("Curai Health")),
+    CompetitorFeed(competitor="openhelix",         name="Openhelix",         feed_url=_gnews_feed("Openhelix healthcare")),
+    CompetitorFeed(competitor="mathco_repgpt",     name="MathCo RepGPT",     feed_url=_gnews_feed("MathCo RepGPT")),
+    CompetitorFeed(competitor="agilisium",         name="Agilisium",         feed_url=_gnews_feed("Agilisium pharma")),
+    # ── Product-name secondary queries (Sprint 8f post-2026-05-12) ───────
+    # Catches news that references a competitor's PRODUCT name without
+    # using the company name. Examples: an article mentioning "HCP365" or
+    # "DocsGPT" without spelling out PulsePoint / Doximity. Pairs with the
+    # T4a.5 dedup step so syndicated coverage that hits both the brand
+    # query AND the product query collapses to one finding.
+    CompetitorFeed(competitor="iqvia_digital",     name="IQVIA Digital (Lasso legacy)", feed_url=_gnews_feed("IQVIA Lasso")),
+    CompetitorFeed(competitor="iqvia",             name="IQVIA (OneKey)",    feed_url=_gnews_feed("IQVIA OneKey")),
+    CompetitorFeed(competitor="pulsepoint",        name="PulsePoint (HCP365)", feed_url=_gnews_feed("PulsePoint HCP365")),
+    CompetitorFeed(competitor="doximity",          name="Doximity (DocsGPT)", feed_url=_gnews_feed("Doximity DocsGPT")),
+    CompetitorFeed(competitor="medscape",          name="Medscape (Extend)", feed_url=_gnews_feed("Medscape Extend")),
+    CompetitorFeed(competitor="openevidence",      name="OpenEvidence (DeepConsult)", feed_url=_gnews_feed("OpenEvidence DeepConsult")),
+    CompetitorFeed(competitor="komodo_health",     name="Komodo (Healthcare Map)", feed_url=_gnews_feed("Komodo Healthcare Map")),
+    CompetitorFeed(competitor="hippocratic_ai",    name="Hippocratic AI (Polaris)", feed_url=_gnews_feed("Hippocratic Polaris")),
+    CompetitorFeed(competitor="deepintent",        name="DeepIntent (Cortex)", feed_url=_gnews_feed("DeepIntent Cortex")),
+    CompetitorFeed(competitor="optimizerx",        name="OptimizeRx (DAAP)", feed_url=_gnews_feed("OptimizeRx DAAP")),
+    CompetitorFeed(competitor="veradigm",          name="Veradigm (Digital Health Media)", feed_url=_gnews_feed("Veradigm Digital Health Media")),
+    CompetitorFeed(competitor="redsail_technologies", name="RedSail (PioneerRx)", feed_url=_gnews_feed("PioneerRx pharmacy")),
+    CompetitorFeed(competitor="definitive_healthcare", name="Definitive (Monocl)", feed_url=_gnews_feed("Monocl Expert Network")),
 )
 
 
