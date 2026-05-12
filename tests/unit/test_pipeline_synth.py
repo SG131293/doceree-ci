@@ -236,6 +236,68 @@ class TestSynthPerProductBatch:
         out = await synth_per_product_batch(findings, gemini=mock_gemini)
         assert out == {}
 
+    async def test_severity_gate_drops_sub_threshold_products(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """Sprint 8f fix: products whose only findings are Sev 1-2 (typically
+        financial noise demoted by adversarial) must NOT generate per-product
+        synth paragraphs. Reproduces the 2026-05-11 bug where a Sev-2 Doximity
+        earnings article triggered "strategic opening for NEXT" rhetoric."""
+        mock_gemini.synthesize.return_value = PerProductSynthesis(  # type: ignore[attr-defined]
+            product_id="reptwin", impact_summary="x" * 30, recommended_action="a"
+        )
+        findings = [
+            # High-sev product launch — should synthesize.
+            _finding(products=["reptwin"], raw_severity=4),
+            # Sev-2 financial noise mapped to a product — should be gated out.
+            _finding(
+                competitor="doximity",
+                products=["publisher_ai_suite", "next"],
+                raw_severity=2,
+            ),
+        ]
+        out = await synth_per_product_batch(findings, gemini=mock_gemini)
+        assert set(out.keys()) == {"reptwin"}
+        # publisher_ai_suite and next must NOT have synth paragraphs.
+        assert "publisher_ai_suite" not in out
+        assert "next" not in out
+        # The LLM was only invoked once (for reptwin).
+        assert mock_gemini.synthesize.await_count == 1  # type: ignore[attr-defined]
+
+    async def test_severity_gate_keeps_mixed_severity_product(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """When a product has at least one Sev>=3 finding alongside Sev 1-2
+        items, it still gets synthesized — and the prompt sees all findings,
+        so lower-sev context can inform the paragraph."""
+        mock_gemini.synthesize.return_value = PerProductSynthesis(  # type: ignore[attr-defined]
+            product_id="reptwin", impact_summary="x" * 30, recommended_action="a"
+        )
+        findings = [
+            _finding(title="big", products=["reptwin"], raw_severity=4),
+            _finding(title="small", products=["reptwin"], raw_severity=2),
+        ]
+        out = await synth_per_product_batch(findings, gemini=mock_gemini)
+        assert "reptwin" in out
+        # Both findings should appear in the prompt sent to Pro.
+        prompt = mock_gemini.synthesize.await_args.args[0]  # type: ignore[attr-defined]
+        assert "big" in prompt
+        assert "small" in prompt
+
+    async def test_severity_gate_custom_threshold(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """`min_product_severity` is configurable for backfill / debug runs."""
+        mock_gemini.synthesize.return_value = PerProductSynthesis(  # type: ignore[attr-defined]
+            product_id="pod", impact_summary="x" * 30, recommended_action="a"
+        )
+        findings = [_finding(products=["pod"], raw_severity=2)]
+        # Default threshold (3) would drop this. Lower threshold keeps it.
+        out = await synth_per_product_batch(
+            findings, gemini=mock_gemini, min_product_severity=2
+        )
+        assert "pod" in out
+
 
 # =========================================================================
 #  synth_strategic (T6)
@@ -311,3 +373,46 @@ class TestSynthStrategic:
         assert "Polaris 5.0" in prompt
         assert "reptwin" in prompt
         assert "Pressure on RepTwin" in prompt
+
+    async def test_skipped_when_no_sev4_findings(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """Sprint 8f fix: strategic synth returns None when nothing today
+        clears Sev 4. Stops the hallucinatory "today's primary development"
+        rhetoric on quiet-day Sev-2-only inputs."""
+        findings = [
+            _finding(products=["next"], raw_severity=2),
+            _finding(products=["publisher_ai_suite"], raw_severity=1),
+        ]
+        result = await synth_strategic(findings, {}, gemini=mock_gemini)
+        assert result is None
+        mock_gemini.synthesize.assert_not_called()  # type: ignore[attr-defined]
+
+    async def test_fires_when_at_least_one_sev4(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """One Sev-4 in the day is enough to trigger strategic synthesis,
+        even if other findings are Sev 1-2."""
+        mock_gemini.synthesize.return_value = StrategicSynthesis(  # type: ignore[attr-defined]
+            pattern="x" * 30, implied_agenda="y" * 30
+        )
+        findings = [
+            _finding(title="big", products=["poc"], raw_severity=4),
+            _finding(title="small", products=["next"], raw_severity=2),
+        ]
+        result = await synth_strategic(findings, {}, gemini=mock_gemini)
+        assert result is not None
+
+    async def test_custom_alert_threshold(
+        self, mock_gemini: GeminiClient
+    ) -> None:
+        """`min_alert_severity` is configurable for backfill runs."""
+        mock_gemini.synthesize.return_value = StrategicSynthesis(  # type: ignore[attr-defined]
+            pattern="x" * 30, implied_agenda="y" * 30
+        )
+        findings = [_finding(products=["poc"], raw_severity=3)]
+        # Default (4) would skip this. Lower threshold fires it.
+        result = await synth_strategic(
+            findings, {}, gemini=mock_gemini, min_alert_severity=3
+        )
+        assert result is not None

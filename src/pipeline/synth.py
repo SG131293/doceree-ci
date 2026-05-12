@@ -169,13 +169,39 @@ async def synth_per_product_batch(
     findings: list[Finding],
     *,
     gemini: GeminiClient,
+    min_product_severity: int = 3,
 ) -> dict[str, PerProductSynthesis]:
     """Run synth_per_product for every Doceree product touched by `findings`.
 
     Returns {product_id: PerProductSynthesis}. Products that couldn't be
     synthesized (LLM error, invalid response) are silently omitted.
+
+    Severity gate (Sprint 8f, post-2026-05-11 fix):
+        A product only gets a synth paragraph when at least one of its
+        findings has `effective_severity >= min_product_severity`. This
+        stops Sev 1-2 findings (typically financial noise that survived
+        adversarial demotion to Sev 2) from triggering "strategic opening
+        for X" paragraphs under products the noise has no real bearing on.
+
+        When a product clears the gate, the prompt still sees ALL its
+        findings — so the synth paragraph can mention lower-sev items
+        as supporting context if relevant — it just won't be triggered
+        by them alone.
     """
-    by_product = group_findings_by_product(findings)
+    by_product_all = group_findings_by_product(findings)
+    # Gate: drop products whose max severity is below the threshold.
+    by_product = {
+        pid: fs for pid, fs in by_product_all.items()
+        if max((f.effective_severity for f in fs), default=0) >= min_product_severity
+    }
+    n_gated_out = len(by_product_all) - len(by_product)
+    if n_gated_out:
+        gated_pids = sorted(set(by_product_all) - set(by_product))
+        logger.info(
+            "synth_per_product severity gate dropped %d product(s) below sev %d: %s",
+            n_gated_out, min_product_severity, gated_pids,
+        )
+
     out: dict[str, PerProductSynthesis] = {}
     for pid, product_findings in by_product.items():
         synth = await synth_per_product(pid, product_findings, gemini=gemini)
@@ -247,13 +273,30 @@ async def synth_strategic(
     per_product: dict[str, PerProductSynthesis],
     *,
     gemini: GeminiClient,
+    min_alert_severity: int = 4,
 ) -> StrategicSynthesis | None:
     """Generate the cross-product strategic narrative.
 
-    Returns None on LLM error, invalid response, or when there are no
-    findings. The renderer should treat None as "skip the strategic section."
+    Returns None on LLM error, invalid response, when there are no
+    findings, or when no finding clears the alert threshold. The renderer
+    treats None as "skip the strategic section."
+
+    Severity gate (Sprint 8f, post-2026-05-11 fix):
+        Strategic synthesis is for executive-level narratives. When the
+        only signals today are Sev 1-2 financial noise or routine items,
+        we shouldn't generate "today's primary development" rhetoric from
+        thin air — that's what produced last week's "potential crack in
+        Doximity's positioning" hallucination on a single earnings article.
+        Default threshold (4) matches the digest header's `sev-4+` count.
     """
     if not findings:
+        return None
+    if not any(f.effective_severity >= min_alert_severity for f in findings):
+        logger.info(
+            "synth_strategic skipped: no findings >= sev %d (top sev today: %d)",
+            min_alert_severity,
+            max((f.effective_severity for f in findings), default=0),
+        )
         return None
     prompt = _format_strategic_prompt(findings, per_product)
     try:

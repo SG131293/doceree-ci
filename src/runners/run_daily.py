@@ -41,6 +41,7 @@ from urllib.parse import quote
 from clients.gemini import GeminiClient
 from clients.gmail import GmailClient
 from clients.http import HttpClient
+from pipeline.dedup import dedup_items
 from pipeline.extract import extract_findings
 from pipeline.filter import filter_items, kept
 from pipeline.synth import synth_per_product_batch, synth_strategic
@@ -255,8 +256,20 @@ async def run(
             str(r.item.url): r.decision for r in attribution_results if r.kept
         }
 
+        # T4a.5 SAME-EVENT DEDUP (Sprint 8f, post-2026-05-11 fix)
+        # Collapses syndicated copies of the same announcement (e.g. yahoo.com
+        # + stocktitan.net for one OptimizeRx launch) BEFORE extract so we
+        # pay Flash cost once per unique event and the digest count reflects
+        # events, not wire copies.
+        deduped_items = dedup_items(attributed_items)
+        if len(deduped_items) != len(attributed_items):
+            logger.info(
+                "Dedup kept %d / %d unique events",
+                len(deduped_items), len(attributed_items),
+            )
+
         # T3 EXTRACT
-        findings = await extract_findings(attributed_items, gemini=gemini)
+        findings = await extract_findings(deduped_items, gemini=gemini)
         logger.info("Extract produced %d findings", len(findings))
 
         # Stamp attribution onto each Finding.
