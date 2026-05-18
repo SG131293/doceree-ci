@@ -218,6 +218,23 @@ DAY6_FEEDS: tuple[CompetitorFeed, ...] = (
     CompetitorFeed(competitor="veradigm",          name="Veradigm (Digital Health Media)", feed_url=_gnews_feed("Veradigm Digital Health Media")),
     CompetitorFeed(competitor="redsail_technologies", name="RedSail (PioneerRx)", feed_url=_gnews_feed("PioneerRx pharmacy")),
     CompetitorFeed(competitor="definitive_healthcare", name="Definitive (Monocl)", feed_url=_gnews_feed("Monocl Expert Network")),
+    # ── Sprint 8f Wave A (2026-05-12): 7 critical missing competitors ────
+    # Per docs/2026-05-12-wave-a-coverage-expansion.md. Sherry-approved cut
+    # after reviewing the 17 Ask Doceree competitor-research-*.md files.
+    # Veeva and Mercalis get multi-query coverage; T4a.5 dedup_items
+    # collapses syndication overlap before extract pays Flash cost.
+    CompetitorFeed(competitor="veeva",             name="Veeva Systems",     feed_url=_gnews_feed("Veeva Systems")),
+    CompetitorFeed(competitor="veeva",             name="Veeva (Crossix)",   feed_url=_gnews_feed("Veeva Crossix")),
+    CompetitorFeed(competitor="veeva",             name="Veeva (Vault CRM)", feed_url=_gnews_feed("Veeva Vault CRM")),
+    CompetitorFeed(competitor="mercalis",          name="Mercalis",          feed_url=_gnews_feed("Mercalis pharma")),
+    CompetitorFeed(competitor="mercalis",          name="Mercalis (TrialCard)", feed_url=_gnews_feed("TrialCard")),
+    CompetitorFeed(competitor="adtheorent",        name="AdTheorent Health", feed_url=_gnews_feed("AdTheorent")),
+    # "Bombora" alone matches weather/storm news — narrow with "intent".
+    CompetitorFeed(competitor="bombora",           name="Bombora",           feed_url=_gnews_feed("Bombora intent")),
+    CompetitorFeed(competitor="assistrx",          name="AssistRx",          feed_url=_gnews_feed("AssistRx")),
+    # "EVERSANA" alone matches unrelated brands — pin to NAVIGATE product.
+    CompetitorFeed(competitor="eversana",          name="EVERSANA NAVIGATE", feed_url=_gnews_feed("EVERSANA NAVIGATE")),
+    CompetitorFeed(competitor="phreesia",          name="Phreesia",          feed_url=_gnews_feed("Phreesia")),
 )
 
 

@@ -459,6 +459,136 @@ tier_2_mvp_cohort:
     region: Global
     notes: "Healthcare vertical entry = Sev 4. Monitor for pharma / life-sciences ABM announcements."
 
+  # ----- Sprint 8f Wave A (2026-05-12): 7 critical competitors -----
+  # Per docs/2026-05-12-wave-a-coverage-expansion.md. Sherry-approved cut after
+  # reading the 17 Ask Doceree competitor-research-*.md files. Each entry below
+  # was missing from monitoring despite appearing across multiple product files
+  # with High / Very High closeness ratings.
+  #
+  # Note: `veeva_ai` already exists as a separate id focused on the AI Agents
+  # arc; the new `veeva` id covers parent-company news, Vault CRM journey moves,
+  # Crossix product launches, and Compass RWD updates. T4a attribution routes
+  # each article to whichever id the title/summary actually references.
+  - id: veeva
+    name: Veeva Systems
+    canonical_domain: veeva.com
+    category: ehr_workflow  # closest existing CompetitorCategory; Veeva is pharma-commercial-cloud (no enum yet)
+    monitoring_tier: direct
+    aliases: ["Veeva Systems", "Veeva Vault CRM", "Vault CRM", "Veeva Crossix", "Veeva Compass", "Veeva Pulse"]
+    short_description: "#1 brand-level competitor per Ask Doceree research. Pharma commercial cloud — Vault CRM, Crossix (measurement), Compass (RWD), Pulse (HCP access), Veeva AI Agents rolling Dec 2025-2026."
+    rss_feeds: []
+    sitemaps:
+      - https://www.veeva.com/sitemap.xml
+    sec_cik: "0001393052"  # VEEV
+    public_jobs_boards: []
+    related_doceree_products: [marketplace, cis, next, reptwin, copay_com]
+    rep_priority: 5
+    region: Global
+    threat_level: high
+    notes: "Parent-company id. Veeva AI (veeva_ai) stays separate for the AI Agents launch arc."
+
+  - id: mercalis
+    name: Mercalis (TrialCard)
+    canonical_domain: mercalis.com
+    category: patient_access_coupon
+    monitoring_tier: direct
+    aliases: ["Mercalis", "TrialCard"]
+    short_description: "Manufacturer-funded affordability and hub services. Direct competitor across co-pay.com (mfr), POD, Spark for Pharmacy, and co-pay.com for Health Systems. TrialCard rebranded under Mercalis."
+    rss_feeds: []
+    sitemaps:
+      - https://www.mercalis.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [copay_com, pod, spark_for_pharmacy, copay_com_health_systems]
+    rep_priority: 4
+    region: US-primary
+    threat_level: high
+
+  - id: adtheorent
+    name: AdTheorent Health (Cadent)
+    canonical_domain: adtheorenthealth.com
+    category: healthcare_dsp
+    monitoring_tier: direct
+    aliases: ["AdTheorent", "AdTheorent Health", "Cadent"]
+    short_description: "Healthcare DSP with ID-independent omnichannel; acquired by Cadent (formerly New Stream Media). Direct Premium Programmatic competitor."
+    rss_feeds: []
+    sitemaps:
+      - https://adtheorenthealth.com/sitemap.xml
+    sec_cik: null  # post-acquisition private under Cadent
+    public_jobs_boards: []
+    related_doceree_products: [premium_programmatic, next]
+    rep_priority: 4
+    region: US-primary
+    threat_level: high
+
+  - id: bombora
+    name: Bombora
+    canonical_domain: bombora.com
+    category: b2b_abm
+    monitoring_tier: direct
+    aliases: ["Bombora", "Bombora Healthcare Intent"]
+    short_description: "Major B2B intent data provider; healthcare-intent integration appears across ABM and CIS competitor mentions. Healthcare-vertical entry = Sev 4 per signal mapping."
+    rss_feeds: []
+    sitemaps:
+      - https://bombora.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [abm, cis]
+    rep_priority: 3
+    region: Global
+    threat_level: medium
+
+  - id: assistrx
+    name: AssistRx
+    canonical_domain: assistrx.com
+    category: patient_access_coupon
+    monitoring_tier: direct
+    aliases: ["AssistRx", "iAssist"]
+    short_description: "Manufacturer patient access technology — iAssist platform for ePA, BV, BI, and co-pay enrollment. Direct competitor across co-pay.com (mfr), co-pay.com (health systems), Spark for Pharmacy."
+    rss_feeds: []
+    sitemaps:
+      - https://www.assistrx.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [copay_com, copay_com_health_systems, spark_for_pharmacy]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+
+  - id: eversana
+    name: EVERSANA
+    canonical_domain: eversana.com
+    category: patient_access_coupon
+    monitoring_tier: direct
+    aliases: ["EVERSANA", "EVERSANA NAVIGATE"]
+    short_description: "Pharma commercialization services + patient access. NAVIGATE platform covers hub, affordability, and patient services. Appears across co-pay.com (mfr), co-pay.com (health systems), and brand-level pharma-services category."
+    rss_feeds: []
+    sitemaps:
+      - https://www.eversana.com/sitemap.xml
+    sec_cik: null  # private
+    public_jobs_boards: []
+    related_doceree_products: [copay_com, copay_com_health_systems]
+    rep_priority: 3
+    region: Global
+    threat_level: medium
+
+  - id: phreesia
+    name: Phreesia
+    canonical_domain: phreesia.com
+    category: dooh_poc_network
+    monitoring_tier: direct
+    aliases: ["Phreesia"]
+    short_description: "Patient intake platform with growing POC adjacency. Public company; active partnerships news. Listed as POC-adjacency competitor in Ask Doceree brand-level research."
+    rss_feeds: []
+    sitemaps:
+      - https://www.phreesia.com/sitemap.xml
+    sec_cik: "0001574540"  # PHR
+    public_jobs_boards: []
+    related_doceree_products: [poc]
+    rep_priority: 3
+    region: US-primary
+    threat_level: medium
+
   - id: relayhealth_change
     name: Change Healthcare / Optum Insight
     canonical_domain: changehealthcare.com

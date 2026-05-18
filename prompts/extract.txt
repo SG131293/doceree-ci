@@ -29,13 +29,18 @@ R2  EHR-triggered HCP messaging (demand-side)
 R3  Omnichannel orchestration / clinical intent / prescriber readiness
     Signals: HCP omnichannel orchestration, clinical intent signals, prescriber-
     readiness scoring, BYOP activation tags, dynamic audiences, "Switzerland
-    of HCP marketing", real-time per-impression decisioning, anti-walled-garden
+    of HCP marketing", real-time per-impression decisioning, anti-walled-garden.
+    Known competitors here include Veeva Vault CRM journeys, Aktana, Adobe
+    Journey Optimizer, Salesforce Marketing Cloud, Iterable, Braze, Tealium.
     → products: [next, cis]
 
 R4  Patient access / affordability / ePA
     Signals: Real-Time Benefit Check (RTBC), automated electronic prior
     authorization, AI patient enrollment, performance-based affordability,
-    copay twin, therapy-start pricing, in-workflow co-pay surfacing
+    copay twin, therapy-start pricing, in-workflow co-pay surfacing.
+    Known competitors here include CoverMyMeds, ConnectiveRx, Mercalis
+    (TrialCard), AssistRx, EVERSANA NAVIGATE, CareMetx, Cardinal Health
+    Sonexus, McKesson access services.
     → products: [copay_com, copay_com_health_systems]
 
 R5  Pharmacy / PMS messaging
@@ -70,12 +75,17 @@ R9  Clinical-screen DOOH
 
 R10 Custom HCP audience construction
     Signals: custom HCP audience builder, live EHR audience signals, LiveRamp
-    cross-DSP activation, HCP segment construction, treatment-switcher audiences
+    cross-DSP activation, HCP segment construction, treatment-switcher audiences.
+    Known competitors here include IQVIA OneKey, Komodo Health, Definitive
+    Healthcare, Veeva Crossix, Trilliant Health, Truveta.
     → products: [marketplace]  (add aqs if scoring methodology mentioned)
 
 R11 Healthcare ABM
     Signals: IP-based hospital/IDN targeting, P&T or VAC committee marketing,
-    healthcare-specific ABM module, formulary-decision platforms, IDN engagement
+    healthcare-specific ABM module, formulary-decision platforms, IDN engagement,
+    Bombora healthcare-intent integration, Madison Logic healthcare module.
+    Known competitors here include Demandbase, 6sense, Madison Logic,
+    DemandScience, Bombora.
     → products: [abm]  (add next if orchestration implied)
 
 R12 Endemic programmatic / HCP identity targeting
@@ -90,8 +100,10 @@ R13 HCP scoring / audience quality
     → products: [aqs]
 
 R14 Generic DSP adding HCP capabilities
-    Signals: generic DSP (The Trade Desk, StackAdapt) announces NPI targeting,
-    EHR adjacency, or healthcare measurement
+    Signals: generic DSP (The Trade Desk, StackAdapt, AdTheorent Health)
+    announces NPI targeting, EHR adjacency, or healthcare measurement.
+    Known healthcare-DSP competitors include DeepIntent, PulsePoint,
+    AdTheorent Health (Cadent), Swoop.
     → products: [premium_programmatic, next]
 
 R15 Deterministic NPI identity / HCP identity graph
