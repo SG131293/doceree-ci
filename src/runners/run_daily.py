@@ -382,14 +382,18 @@ async def run(
 
     # T8 DELIVER
     gmail = GmailClient()
-    recipient = send_to or gmail.user_email
-    message_id = await gmail.send_message(
-        to=recipient,
-        subject=subject,
-        plaintext=plaintext,
-        html=html,
-    )
-    logger.info("Sent digest to %s (Gmail id=%s)", recipient, message_id)
+    raw_recipients = send_to or gmail.user_email
+    # Comma-separated list -> one Gmail send per recipient so each gets a
+    # private copy (no shared To: header revealing other readers).
+    recipients = [r.strip() for r in raw_recipients.split(",") if r.strip()]
+    for recipient in recipients:
+        message_id = await gmail.send_message(
+            to=recipient,
+            subject=subject,
+            plaintext=plaintext,
+            html=html,
+        )
+        logger.info("Sent digest to %s (Gmail id=%s)", recipient, message_id)
     return 0
 
 
@@ -404,7 +408,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--send-to",
         type=str,
         default=None,
-        help="Override recipient address (defaults to GMAIL_USER_EMAIL).",
+        help="Override recipient address(es). Comma-separated for multiple "
+        "recipients; each gets a private copy. Defaults to GMAIL_USER_EMAIL.",
     )
     p.add_argument(
         "--max-items",
