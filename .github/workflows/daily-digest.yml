@@ -89,6 +89,7 @@ jobs:
           python scripts/run_daily.py \
             ${DRY_RUN_FLAG} \
             --max-items "${MAX_ITEMS}" \
+            --send-to "sherry.george@doceree.com,harshit.jain@doceree.com" \
             --out-dir out 2>&1 | tee out/run.log
 
       - name: Notify failure
